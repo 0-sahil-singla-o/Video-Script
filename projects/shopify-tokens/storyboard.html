@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shopify Tokens - Visual Storyboard Review (Step 4)</title>
+  <style>
+    :root {
+      --bg: #0A0D14;
+      --card-bg: #111622;
+      --border: #1E293B;
+      --coral: #FF6B4A;
+      --mysql-blue: #00758F;
+      --mysql-cyan: #00A3C4;
+      --shopify-green: #00E599;
+      --lock-red: #EF4444;
+      --gold-light: #FDE047;
+      --gold-dark: #D97706;
+      --text: #F8FAFC;
+      --muted: #94A3B8;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Inter", sans-serif;
+      padding: 40px 20px;
+      line-height: 1.6;
+    }
+
+    header {
+      max-width: 1400px;
+      margin: 0 auto 40px auto;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 24px;
+    }
+
+    h1 {
+      font-size: 32px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      margin-bottom: 8px;
+      background: linear-gradient(135deg, #FFF 0%, var(--muted) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      font-size: 16px;
+      max-width: 900px;
+    }
+
+    .badge-bar {
+      display: flex;
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .pill {
+      font-size: 12px;
+      font-weight: 700;
+      padding: 4px 12px;
+      border-radius: 20px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    .pill-cyan { background: rgba(0, 163, 196, 0.15); color: var(--mysql-cyan); border: 1px solid var(--mysql-cyan); }
+    .pill-green { background: rgba(0, 229, 153, 0.15); color: var(--shopify-green); border: 1px solid var(--shopify-green); }
+    .pill-gold { background: rgba(245, 158, 11, 0.15); color: var(--gold-light); border: 1px solid var(--gold-light); }
+
+    .storyboard-grid {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
+      gap: 32px;
+    }
+
+    .scene-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    }
+
+    .scene-header {
+      padding: 18px 24px;
+      background: rgba(255, 255, 255, 0.02);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .scene-title {
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      color: var(--text);
+    }
+
+    .scene-timing {
+      font-family: monospace;
+      font-size: 13px;
+      color: var(--coral);
+      font-weight: 700;
+    }
+
+    /* 9:16 Canvas Simulator */
+    .viewport {
+      width: 100%;
+      height: 480px;
+      background: radial-gradient(circle at 50% 40%, #151D2C 0%, #080A0F 100%);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      perspective: 1000px;
+    }
+
+    /* Subtle grid backdrop */
+    .viewport::before {
+      content: "";
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background-size: 30px 30px;
+      background-image: radial-gradient(rgba(255, 255, 255, 0.06) 1px, transparent 1px);
+      pointer-events: none;
+    }
+
+    .scene-details {
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      flex-grow: 1;
+    }
+
+    .spoken-line {
+      font-size: 15px;
+      color: #E2E8F0;
+      font-weight: 500;
+      background: rgba(255, 255, 255, 0.03);
+      padding: 12px 16px;
+      border-left: 3px solid var(--shopify-green);
+      border-radius: 4px;
+    }
+
+    .direction {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+    .direction strong { color: #FFF; }
+
+    /* ======================================================== */
+    /* REAL 3D & VECTOR GEOMETRIES (NO EMOJIS)                */
+    /* ======================================================== */
+
+    /* SCENE 1: HOODIE SHOWCASE CUBE */
+    .cube-3d {
+      width: 180px;
+      height: 200px;
+      position: relative;
+      transform-style: preserve-3d;
+      transform: rotateX(15deg) rotateY(-25deg);
+    }
+
+    .cube-stage {
+      position: absolute;
+      bottom: -20px;
+      left: 10px;
+      width: 160px;
+      height: 160px;
+      background: radial-gradient(circle, rgba(0, 163, 196, 0.2) 0%, transparent 70%);
+      border: 1px solid rgba(0, 163, 196, 0.4);
+      border-radius: 50%;
+      transform: rotateX(75deg);
+      box-shadow: 0 0 30px rgba(0, 163, 196, 0.3);
+    }
+
+    .hoodie-vector {
+      width: 120px;
+      height: 120px;
+      margin: 20px auto;
+      filter: drop-shadow(0 15px 25px rgba(0, 0, 0, 0.7));
+    }
+
+    .stock-pill {
+      position: absolute;
+      top: 30px;
+      background: rgba(239, 68, 68, 0.2);
+      border: 1px solid var(--lock-red);
+      color: #FF7B7B;
+      font-weight: 800;
+      font-size: 12px;
+      padding: 6px 16px;
+      border-radius: 20px;
+      letter-spacing: 1.5px;
+      box-shadow: 0 0 20px rgba(239, 68, 68, 0.3);
+    }
+
+    /* SCENE 2: 3D DATABASE CYLINDER STACK */
+    .db-cylinder-stack {
+      width: 160px;
+      height: 220px;
+      position: relative;
+      transform-style: preserve-3d;
+      transform: rotateX(25deg) rotateY(-15deg);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .db-platter {
+      width: 160px;
+      height: 45px;
+      border-radius: 50%;
+      background: linear-gradient(180deg, #00A3C4 0%, #00758F 60%, #004D5E 100%);
+      box-shadow: 0 8px 0 #003642, 0 16px 20px rgba(0, 0, 0, 0.6);
+      position: relative;
+      border-top: 2px solid #5CE1E6;
+    }
+
+    .db-platter::before {
+      content: "";
+      position: absolute;
+      top: 4px;
+      left: 10px;
+      right: 10px;
+      height: 35px;
+      border-radius: 50%;
+      background: radial-gradient(ellipse at 50% 30%, #5CE1E6 0%, #00758F 75%);
+    }
+
+    .db-led {
+      position: absolute;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      right: 25px;
+      top: 18px;
+      background: var(--shopify-green);
+      box-shadow: 0 0 8px var(--shopify-green);
+    }
+
+    .db-label {
+      position: absolute;
+      bottom: 20px;
+      background: #002B36;
+      border: 1px solid var(--mysql-cyan);
+      color: #FFF;
+      font-family: monospace;
+      font-size: 13px;
+      padding: 4px 14px;
+      border-radius: 6px;
+    }
+
+    /* SCENE 3: INDUSTRIAL 3D PADLOCK & ROW LOCK */
+    .padlock-assembly {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+    }
+
+    .lock-shackle {
+      width: 70px;
+      height: 65px;
+      border: 12px solid #CBD5E1;
+      border-bottom: none;
+      border-radius: 40px 40px 0 0;
+      box-shadow: inset 0 2px 4px rgba(255, 255, 255, 0.6), 0 4px 8px rgba(0, 0, 0, 0.5);
+      margin-bottom: -10px;
+      z-index: 1;
+    }
+
+    .lock-body {
+      width: 120px;
+      height: 95px;
+      background: linear-gradient(135deg, #DC2626 0%, #991B1B 100%);
+      border-radius: 12px;
+      border: 2px solid #EF4444;
+      box-shadow: 0 15px 30px rgba(239, 68, 68, 0.4), inset 0 2px 5px rgba(255, 255, 255, 0.4);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 2;
+    }
+
+    .lock-text {
+      color: #FFF;
+      font-weight: 900;
+      font-size: 13px;
+      letter-spacing: 2px;
+    }
+
+    .keyhole {
+      width: 10px;
+      height: 10px;
+      background: #450A0A;
+      border-radius: 50%;
+      margin-top: 8px;
+      position: relative;
+    }
+    .keyhole::after {
+      content: "";
+      position: absolute;
+      bottom: -6px;
+      left: 2px;
+      width: 6px;
+      height: 8px;
+      background: #450A0A;
+    }
+
+    .locked-row-pill {
+      margin-top: 20px;
+      background: rgba(239, 68, 68, 0.15);
+      border: 1px solid var(--lock-red);
+      color: #FECACA;
+      font-family: monospace;
+      font-size: 13px;
+      padding: 6px 18px;
+      border-radius: 8px;
+    }
+
+    /* SCENE 4: 3D TOKENS IN GLASS BOWL */
+    .glass-bowl {
+      width: 240px;
+      height: 200px;
+      border: 2px solid rgba(255, 255, 255, 0.25);
+      border-top: none;
+      border-radius: 0 0 120px 120px;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.02) 0%, rgba(0, 229, 153, 0.08) 100%);
+      box-shadow: inset 0 -10px 25px rgba(0, 229, 153, 0.15), 0 20px 40px rgba(0, 0, 0, 0.6);
+      position: relative;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      padding-bottom: 25px;
+    }
+
+    .tokens-group {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+
+    .gold-coin {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 35%, #FDE047 0%, #F59E0B 60%, #B45309 100%);
+      box-shadow: 0 6px 0 #78350F, 0 10px 15px rgba(0, 0, 0, 0.5);
+      border: 2px solid #FEF08A;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #78350F;
+      font-weight: 900;
+      font-size: 18px;
+    }
+
+    /* SCENE 5: SKIP LOCKED CHOREOGRAPHY */
+    .skip-track {
+      display: flex;
+      gap: 30px;
+      align-items: center;
+      position: relative;
+    }
+
+    .slot-unit {
+      width: 90px;
+      height: 120px;
+      background: #111827;
+      border-radius: 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      border: 2px solid var(--border);
+    }
+
+    .slot-unit.locked {
+      border-color: var(--lock-red);
+      background: rgba(239, 68, 68, 0.06);
+    }
+
+    .slot-unit.claimed {
+      border-color: var(--shopify-green);
+      background: rgba(0, 229, 153, 0.08);
+      box-shadow: 0 0 25px rgba(0, 229, 153, 0.2);
+    }
+
+    .svg-cursor {
+      position: absolute;
+      top: -30px;
+      left: 140px;
+      width: 38px;
+      height: 38px;
+      filter: drop-shadow(0 10px 15px rgba(0, 0, 0, 0.8));
+    }
+
+    .skip-arrow {
+      position: absolute;
+      top: -15px;
+      left: 45px;
+      width: 80px;
+      height: 40px;
+      border-top: 3px dashed var(--shopify-green);
+      border-right: 3px dashed var(--shopify-green);
+      border-radius: 0 40px 0 0;
+    }
+
+    /* SCENE 6: PRODUCTION TERMINAL */
+    .terminal-mockup {
+      width: 340px;
+      background: #0F172A;
+      border: 1px solid #334155;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.7);
+    }
+
+    .term-titlebar {
+      height: 32px;
+      background: #1E293B;
+      display: flex;
+      align-items: center;
+      padding: 0 12px;
+      gap: 6px;
+    }
+    .term-dot { width: 10px; height: 10px; border-radius: 50%; }
+    .term-dot-r { background: #EF4444; }
+    .term-dot-y { background: #F59E0B; }
+    .term-dot-g { background: #10B981; }
+
+    .term-content {
+      padding: 16px;
+      font-family: "Fira Code", monospace;
+      font-size: 11px;
+      line-height: 1.6;
+    }
+    .kw { color: #38BDF8; font-weight: 700; }
+    .tbl { color: #A78BFA; }
+    .hl { color: var(--shopify-green); font-weight: 800; }
+    .val { color: #FDE047; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>Shopify Tokens — Visual Storyboard & Geometry Review</h1>
+    <p class="subtitle">
+      Following Step 4 of Sushil Kumar's article (<em>"A storyboard before anything moves"</em>): every scene is designed with custom 3D geometries, metallic materials, and vector primitives before animation timelines are rendered. No emoji shortcuts or unstyled bordered divs.
+    </p>
+    <div class="badge-bar">
+      <span class="pill pill-cyan">Resolution: 1080×1920 (9:16 Reels)</span>
+      <span class="pill pill-green">Master Audio: -14 LUFS Broadcast</span>
+      <span class="pill pill-gold">Kokoro-82M Voice Clock: 68.6s</span>
+    </div>
+  </header>
+
+  <div class="storyboard-grid">
+
+    <!-- FRAME 1 -->
+    <div class="scene-card">
+      <div class="scene-header">
+        <span class="scene-title">Scene 1: The Last Hoodie Hook</span>
+        <span class="scene-timing">0.0s – 10.4s</span>
+      </div>
+      <div class="viewport">
+        <div class="stock-pill">⚡ 1 LEFT IN STOCK</div>
+        <div class="cube-3d">
+          <!-- Vector Hoodie Emblem -->
+          <svg class="hoodie-vector" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M25 22L38 12H62L75 22L90 42L76 52L72 38V88H28V38L24 52L10 42L25 22Z" fill="url(#hoodieGrad)" stroke="#FF6B4A" stroke-width="2.5" stroke-linejoin="round"/>
+            <path d="M40 12C40 22 45 28 50 28C55 28 60 22 60 12" stroke="#FF6B4A" stroke-width="2" stroke-linecap="round"/>
+            <defs>
+              <linearGradient id="hoodieGrad" x1="10" y1="12" x2="90" y2="88" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#2D3748"/>
+                <stop offset="1" stop-color="#1A202C"/>
+              </linearGradient>
+            </defs>
+          </svg>
+          <div class="cube-stage"></div>
+        </div>
+      </div>
+      <div class="scene-details">
+        <div class="spoken-line">"Picture this. It is Black Friday. Ten thousand shoppers smash the checkout button for the last remaining hoodie at the exact same millisecond. Who wins?"</div>
+        <div class="direction"><strong>Visual Action:</strong> Slow cinematic push into the 3D rotating platform. Vector hoodie floats with metallic specular sheen. Stock badge pulses alert red.</div>
+      </div>
+    </div>
+
+    <!-- FRAME 2 -->
+    <div class="scene-card">
+      <div class="scene-header">
+        <span class="scene-title">Scene 2: The Shared Database Ledger</span>
+        <span class="scene-timing">10.4s – 19.8s</span>
+      </div>
+      <div class="viewport">
+        <div class="db-cylinder-stack">
+          <div class="db-platter"><div class="db-led"></div></div>
+          <div class="db-platter"><div class="db-led"></div></div>
+          <div class="db-platter"><div class="db-led"></div></div>
+        </div>
+        <div class="db-label">inventory_levels (MySQL)</div>
+      </div>
+      <div class="scene-details">
+        <div class="spoken-line">"Think of your database like a physical notebook. To buy an item, the server has to flip to that exact row, erase the number one, and write zero."</div>
+        <div class="direction"><strong>Visual Action:</strong> Camera pans right to reveal a stacked 3D metallic database cylinder (MySQL Blue #00758F). Platters show disc thickness and glowing green server LEDs.</div>
+      </div>
+    </div>
+
+    <!-- FRAME 3 -->
+    <div class="scene-card">
+      <div class="scene-header">
+        <span class="scene-title">Scene 3: Deadlock Traffic Jam</span>
+        <span class="scene-timing">19.8s – 33.6s</span>
+      </div>
+      <div class="viewport">
+        <div class="padlock-assembly">
+          <div class="lock-shackle"></div>
+          <div class="lock-body">
+            <span class="lock-text">OCCUPIED</span>
+            <div class="keyhole"></div>
+          </div>
+          <div class="locked-row-pill">SELECT ... FOR UPDATE [LOCKED]</div>
+        </div>
+      </div>
+      <div class="scene-details">
+        <div class="spoken-line">"To stop two people from buying it, databases lock the entire row. But during a flash sale, thousands of shoppers queue behind that single lock, causing timeouts and crashed servers."</div>
+        <div class="direction"><strong>Visual Action:</strong> Heavy red industrial 3D padlock slams down with a physical thud SFX. Camera micro-shakes. Row lock pill glows bright warning red.</div>
+      </div>
+    </div>
+
+    <!-- FRAME 4 -->
+    <div class="scene-card">
+      <div class="scene-header">
+        <span class="scene-title">Scene 4: The Trick: Tokens in a Bowl</span>
+        <span class="scene-timing">33.6s – 46.2s</span>
+      </div>
+      <div class="viewport">
+        <div class="glass-bowl">
+          <div class="tokens-group">
+            <div class="gold-coin">1</div>
+            <div class="gold-coin">2</div>
+            <div class="gold-coin">3</div>
+            <div class="gold-coin">4</div>
+            <div class="gold-coin">5</div>
+            <div class="gold-coin">6</div>
+          </div>
+        </div>
+      </div>
+      <div class="scene-details">
+        <div class="spoken-line">"Here is the genius trick Shopify uses. Instead of one shared counter that says six, create six separate rows, one for each individual hoodie. Like six physical tokens sitting in a glass bowl."</div>
+        <div class="direction"><strong>Visual Action:</strong> The single row shatters. 6 gold coin tokens with radial bevels and etched numbers tumble down and settle inside a frosted glass bowl.</div>
+      </div>
+    </div>
+
+    <!-- FRAME 5 -->
+    <div class="scene-card">
+      <div class="scene-header">
+        <span class="scene-title">Scene 5: SKIP LOCKED in Motion</span>
+        <span class="scene-timing">46.2s – 58.7s</span>
+      </div>
+      <div class="viewport">
+        <div class="skip-track">
+          <div class="skip-arrow"></div>
+          <!-- Slot 1 Locked -->
+          <div class="slot-unit locked">
+            <div class="gold-coin" style="opacity: 0.4;">1</div>
+            <span style="color: var(--lock-red); font-size: 10px; font-weight: 800;">LOCKED</span>
+          </div>
+          <!-- Slot 2 Claimed -->
+          <div class="slot-unit claimed">
+            <div class="gold-coin">2</div>
+            <span style="color: var(--shopify-green); font-size: 10px; font-weight: 800;">CLAIMED</span>
+          </div>
+          <!-- Animated Vector Cursor -->
+          <svg class="svg-cursor" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M4 3L11 21L14 13L21 10L4 3Z" fill="#FFFFFF" stroke="#000" stroke-width="1.5" stroke-linejoin="round"/>
+          </svg>
+        </div>
+      </div>
+      <div class="scene-details">
+        <div class="spoken-line">"Now, every checkout query asks for just one token. And if another customer is currently touching Token 1, the query doesn't wait in line. It immediately skips to Token 2."</div>
+        <div class="direction"><strong>Visual Action:</strong> The vector cursor gracefully arcs over the locked red slot without stalling, landing instantly on Token 2 in bright emerald green.</div>
+      </div>
+    </div>
+
+    <!-- FRAME 6 -->
+    <div class="scene-card">
+      <div class="scene-header">
+        <span class="scene-title">Scene 6: Victory & High Throughput</span>
+        <span class="scene-timing">58.7s – 68.6s</span>
+      </div>
+      <div class="viewport">
+        <div class="terminal-mockup">
+          <div class="term-titlebar">
+            <div class="term-dot term-dot-r"></div>
+            <div class="term-dot term-dot-y"></div>
+            <div class="term-dot term-dot-g"></div>
+            <span style="color: #64748B; font-size: 10px; margin-left: 8px;">mysql — production</span>
+          </div>
+          <div class="term-content">
+            <p><span class="kw">SELECT</span> id <span class="kw">FROM</span> <span class="tbl">inventory_units</span></p>
+            <p><span class="kw">WHERE</span> sku = <span class="val">'HOODIE-BLK'</span></p>
+            <p><span class="kw">AND</span> status = <span class="val">'available'</span></p>
+            <p><span class="kw">LIMIT</span> <span class="val">1</span></p>
+            <p><span class="hl">FOR UPDATE SKIP LOCKED;</span></p>
+            <p style="color: #10B981; margin-top: 8px;">✓ 1 row affected (0.84 ms)</p>
+          </div>
+        </div>
+      </div>
+      <div class="scene-details">
+        <div class="spoken-line">"No queue. No deadlocks. Thousands of transactions complete in parallel, and Shopify never sells that last hoodie twice."</div>
+        <div class="direction"><strong>Visual Action:</strong> Clean developer IDE terminal window renders with syntax highlighting. Execution time shows &lt; 1ms. Green success badge confirms 100% throughput.</div>
+      </div>
+    </div>
+
+  </div>
+
+</body>
+</html>

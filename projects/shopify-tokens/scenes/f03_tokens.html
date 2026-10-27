@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Scene 3: Tokens in a Bowl</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      width: 1080px; height: 1920px;
+      background: #0D0F12;
+      color: #FFFFFF;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      overflow: hidden;
+      perspective: 1200px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* 3D Stage */
+    .stage {
+      width: 700px; height: 700px;
+      position: relative;
+      transform-style: preserve-3d;
+      transform: rotateX(50deg) rotateZ(-15deg);
+    }
+
+    /* Glass Bowl */
+    .bowl {
+      position: absolute;
+      width: 480px; height: 480px;
+      left: 110px; top: 110px;
+      border-radius: 50%;
+      border: 4px solid rgba(255, 255, 255, 0.25);
+      background: radial-gradient(circle at center, rgba(255, 255, 255, 0.05) 0%, rgba(255, 107, 74, 0.1) 100%);
+      box-shadow: 0 0 50px rgba(255, 107, 74, 0.2), inset 0 0 40px rgba(255, 255, 255, 0.1);
+      transform-style: preserve-3d;
+    }
+
+    /* 3D Tokens (Gold Coins) */
+    .token {
+      position: absolute;
+      width: 80px; height: 80px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+      border: 3px solid #FFF8DC;
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5), inset 0 0 10px rgba(255, 255, 255, 0.6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 26px;
+      font-weight: 900;
+      color: #7A5200;
+      transform-style: preserve-3d;
+      opacity: 0;
+      transform: translateZ(200px) scale(0);
+    }
+
+    /* Comparison Banner (Top) */
+    .banner {
+      position: absolute;
+      top: 240px;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      background: rgba(26, 30, 41, 0.9);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 60px;
+      padding: 14px 36px;
+      font-size: 26px;
+      font-weight: 700;
+    }
+    .badge-before { color: #EF4444; }
+    .badge-after  { color: #10B981; }
+
+    /* SQL Code Pill (Bottom) */
+    .code-pill {
+      position: absolute;
+      bottom: 430px;
+      background: #1A1E29;
+      border: 1px solid #FF6B4A;
+      border-radius: 16px;
+      padding: 24px 44px;
+      font-family: "Fira Code", monospace;
+      font-size: 32px;
+      color: #FF6B4A;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+      opacity: 0;
+      transform: translateY(30px);
+    }
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+</head>
+<body>
+  <div class="banner">
+    <span class="badge-before">BEFORE: 1 row (count: 6)</span>
+    <span>➔</span>
+    <span class="badge-after">AFTER: 6 rows (1 per hoodie)</span>
+  </div>
+
+  <div class="stage" id="stage">
+    <div class="bowl" id="bowl"></div>
+    <div class="token" id="t1" style="left: 200px; top: 180px;">1</div>
+    <div class="token" id="t2" style="left: 290px; top: 190px;">2</div>
+    <div class="token" id="t3" style="left: 240px; top: 260px;">3</div>
+    <div class="token" id="t4" style="left: 330px; top: 270px;">4</div>
+    <div class="token" id="t5" style="left: 170px; top: 280px;">5</div>
+    <div class="token" id="t6" style="left: 260px; top: 340px;">6</div>
+  </div>
+
+  <div class="code-pill" id="pill">
+    SELECT ... SKIP LOCKED
+  </div>
+
+  <script>
+    // Templated placeholders replaced by build_scenes.py from word_timestamps.json
+    const t_trick = {{t:trick}};
+    const t_tokens = {{t:tokens}};
+    const t_skip = {{t:skips}};
+
+    const tl = gsap.timeline({ paused: true });
+
+    // Slow ambient rotation of the bowl
+    tl.to("#stage", {
+      rotateZ: "+=30",
+      duration: 10,
+      ease: "none"
+    }, 0);
+
+    // 6 Tokens drop into the bowl on "tokens"
+    tl.to(".token", {
+      opacity: 1,
+      scale: 1,
+      translateZ: 20,
+      stagger: 0.08,
+      duration: 0.5,
+      ease: "bounce.out"
+    }, t_tokens);
+
+    // Code pill appears on "skip"
+    tl.to("#pill", {
+      opacity: 1,
+      y: 0,
+      duration: 0.4,
+      ease: "power3.out"
+    }, t_skip);
+
+    // Frame seeker
+    window.seekFrame = (timeInSeconds) => tl.seek(timeInSeconds);
+  </script>
+</body>
+</html>

@@ -1,0 +1,1212 @@
+[
+  {
+    "word": "You",
+    "start": 0.0,
+    "end": 0.08
+  },
+  {
+    "word": "type",
+    "start": 0.08,
+    "end": 0.34
+  },
+  {
+    "word": "Google",
+    "start": 0.34,
+    "end": 0.62
+  },
+  {
+    "word": ".com",
+    "start": 0.62,
+    "end": 1.38
+  },
+  {
+    "word": "and",
+    "start": 1.38,
+    "end": 2.12
+  },
+  {
+    "word": "the",
+    "start": 2.12,
+    "end": 2.22
+  },
+  {
+    "word": "page",
+    "start": 2.22,
+    "end": 2.52
+  },
+  {
+    "word": "loads",
+    "start": 2.52,
+    "end": 2.94
+  },
+  {
+    "word": "instantly.",
+    "start": 2.94,
+    "end": 3.6
+  },
+  {
+    "word": "How",
+    "start": 4.28,
+    "end": 4.36
+  },
+  {
+    "word": "did",
+    "start": 4.36,
+    "end": 4.48
+  },
+  {
+    "word": "your",
+    "start": 4.48,
+    "end": 4.62
+  },
+  {
+    "word": "computer",
+    "start": 4.62,
+    "end": 4.96
+  },
+  {
+    "word": "know",
+    "start": 4.96,
+    "end": 5.3
+  },
+  {
+    "word": "where",
+    "start": 5.3,
+    "end": 5.54
+  },
+  {
+    "word": "to",
+    "start": 5.54,
+    "end": 5.66
+  },
+  {
+    "word": "go?",
+    "start": 5.66,
+    "end": 5.86
+  },
+  {
+    "word": "Every",
+    "start": 6.34,
+    "end": 6.56
+  },
+  {
+    "word": "device",
+    "start": 6.56,
+    "end": 6.94
+  },
+  {
+    "word": "on",
+    "start": 6.94,
+    "end": 7.28
+  },
+  {
+    "word": "Earth",
+    "start": 7.28,
+    "end": 7.54
+  },
+  {
+    "word": "has",
+    "start": 7.54,
+    "end": 7.9
+  },
+  {
+    "word": "an",
+    "start": 7.9,
+    "end": 8.02
+  },
+  {
+    "word": "address,",
+    "start": 8.02,
+    "end": 8.28
+  },
+  {
+    "word": "like",
+    "start": 8.88,
+    "end": 9.08
+  },
+  {
+    "word": "your",
+    "start": 9.08,
+    "end": 9.28
+  },
+  {
+    "word": "home",
+    "start": 9.28,
+    "end": 9.54
+  },
+  {
+    "word": "postal",
+    "start": 9.54,
+    "end": 9.94
+  },
+  {
+    "word": "address.",
+    "start": 9.94,
+    "end": 10.42
+  },
+  {
+    "word": "A",
+    "start": 10.98,
+    "end": 11.04
+  },
+  {
+    "word": "letter",
+    "start": 11.04,
+    "end": 11.22
+  },
+  {
+    "word": "needs",
+    "start": 11.22,
+    "end": 11.56
+  },
+  {
+    "word": "a",
+    "start": 11.56,
+    "end": 11.74
+  },
+  {
+    "word": "street",
+    "start": 11.74,
+    "end": 11.96
+  },
+  {
+    "word": "number",
+    "start": 11.96,
+    "end": 12.28
+  },
+  {
+    "word": "to",
+    "start": 12.28,
+    "end": 12.62
+  },
+  {
+    "word": "reach",
+    "start": 12.62,
+    "end": 12.82
+  },
+  {
+    "word": "your",
+    "start": 12.82,
+    "end": 13.06
+  },
+  {
+    "word": "mailbox.",
+    "start": 13.06,
+    "end": 13.32
+  },
+  {
+    "word": "Computers",
+    "start": 14.12,
+    "end": 14.6
+  },
+  {
+    "word": "use",
+    "start": 14.6,
+    "end": 14.78
+  },
+  {
+    "word": "four",
+    "start": 14.78,
+    "end": 15.1
+  },
+  {
+    "word": "numbers,",
+    "start": 15.1,
+    "end": 15.44
+  },
+  {
+    "word": "like",
+    "start": 16.0,
+    "end": 16.14
+  },
+  {
+    "word": "192",
+    "start": 16.14,
+    "end": 16.58
+  },
+  {
+    "word": ".168",
+    "start": 16.58,
+    "end": 17.88
+  },
+  {
+    "word": ".1",
+    "start": 17.88,
+    "end": 18.94
+  },
+  {
+    "word": ".1.",
+    "start": 18.94,
+    "end": 19.6
+  },
+  {
+    "word": "This",
+    "start": 19.84,
+    "end": 20.08
+  },
+  {
+    "word": "format",
+    "start": 20.08,
+    "end": 20.44
+  },
+  {
+    "word": "is",
+    "start": 20.44,
+    "end": 20.94
+  },
+  {
+    "word": "IP4.",
+    "start": 20.94,
+    "end": 21.58
+  },
+  {
+    "word": "It",
+    "start": 22.12,
+    "end": 22.38
+  },
+  {
+    "word": "holds",
+    "start": 22.38,
+    "end": 22.54
+  },
+  {
+    "word": "four",
+    "start": 22.54,
+    "end": 23.02
+  },
+  {
+    "word": "billion",
+    "start": 23.02,
+    "end": 23.5
+  },
+  {
+    "word": "addresses.",
+    "start": 23.5,
+    "end": 23.92
+  },
+  {
+    "word": "We",
+    "start": 24.68,
+    "end": 24.7
+  },
+  {
+    "word": "ran",
+    "start": 24.7,
+    "end": 24.9
+  },
+  {
+    "word": "out",
+    "start": 24.9,
+    "end": 25.16
+  },
+  {
+    "word": "of",
+    "start": 25.16,
+    "end": 25.26
+  },
+  {
+    "word": "addresses,",
+    "start": 25.26,
+    "end": 25.54
+  },
+  {
+    "word": "so",
+    "start": 26.34,
+    "end": 26.42
+  },
+  {
+    "word": "IP6",
+    "start": 26.42,
+    "end": 26.98
+  },
+  {
+    "word": "added",
+    "start": 26.98,
+    "end": 27.46
+  },
+  {
+    "word": "vastly",
+    "start": 27.46,
+    "end": 27.86
+  },
+  {
+    "word": "longer",
+    "start": 27.86,
+    "end": 28.48
+  },
+  {
+    "word": "strings.",
+    "start": 28.48,
+    "end": 28.92
+  },
+  {
+    "word": "Your",
+    "start": 29.32,
+    "end": 29.66
+  },
+  {
+    "word": "router",
+    "start": 29.66,
+    "end": 29.94
+  },
+  {
+    "word": "gives",
+    "start": 29.94,
+    "end": 30.32
+  },
+  {
+    "word": "one",
+    "start": 30.32,
+    "end": 30.62
+  },
+  {
+    "word": "public",
+    "start": 30.62,
+    "end": 30.96
+  },
+  {
+    "word": "building",
+    "start": 30.96,
+    "end": 31.38
+  },
+  {
+    "word": "address",
+    "start": 31.38,
+    "end": 31.82
+  },
+  {
+    "word": "outside,",
+    "start": 31.82,
+    "end": 32.6
+  },
+  {
+    "word": "and",
+    "start": 33.26,
+    "end": 33.28
+  },
+  {
+    "word": "private",
+    "start": 33.28,
+    "end": 33.56
+  },
+  {
+    "word": "apartment",
+    "start": 33.56,
+    "end": 33.98
+  },
+  {
+    "word": "numbers",
+    "start": 33.98,
+    "end": 34.4
+  },
+  {
+    "word": "inside.",
+    "start": 34.4,
+    "end": 34.74
+  },
+  {
+    "word": "Computers",
+    "start": 35.6,
+    "end": 36.12
+  },
+  {
+    "word": "need",
+    "start": 36.12,
+    "end": 36.26
+  },
+  {
+    "word": "numbers,",
+    "start": 36.26,
+    "end": 36.62
+  },
+  {
+    "word": "but",
+    "start": 37.22,
+    "end": 37.46
+  },
+  {
+    "word": "humans",
+    "start": 37.46,
+    "end": 37.68
+  },
+  {
+    "word": "cannot",
+    "start": 37.68,
+    "end": 38.14
+  },
+  {
+    "word": "memorize",
+    "start": 38.14,
+    "end": 39.04
+  },
+  {
+    "word": "endless",
+    "start": 39.04,
+    "end": 39.42
+  },
+  {
+    "word": "digits.",
+    "start": 39.42,
+    "end": 39.76
+  },
+  {
+    "word": "You",
+    "start": 40.48,
+    "end": 40.5
+  },
+  {
+    "word": "do",
+    "start": 40.5,
+    "end": 40.64
+  },
+  {
+    "word": "not",
+    "start": 40.64,
+    "end": 40.84
+  },
+  {
+    "word": "memorize",
+    "start": 40.84,
+    "end": 41.5
+  },
+  {
+    "word": "phone",
+    "start": 41.5,
+    "end": 41.72
+  },
+  {
+    "word": "numbers.",
+    "start": 41.72,
+    "end": 42.06
+  },
+  {
+    "word": "You",
+    "start": 42.92,
+    "end": 42.96
+  },
+  {
+    "word": "tap",
+    "start": 42.96,
+    "end": 43.2
+  },
+  {
+    "word": "names",
+    "start": 43.2,
+    "end": 43.42
+  },
+  {
+    "word": "in",
+    "start": 43.42,
+    "end": 43.84
+  },
+  {
+    "word": "your",
+    "start": 43.84,
+    "end": 43.94
+  },
+  {
+    "word": "contacts",
+    "start": 43.94,
+    "end": 44.38
+  },
+  {
+    "word": "app.",
+    "start": 44.38,
+    "end": 44.88
+  },
+  {
+    "word": "DNS",
+    "start": 45.3,
+    "end": 45.54
+  },
+  {
+    "word": "is",
+    "start": 45.54,
+    "end": 46.4
+  },
+  {
+    "word": "the",
+    "start": 46.4,
+    "end": 46.56
+  },
+  {
+    "word": "contacts",
+    "start": 46.56,
+    "end": 46.96
+  },
+  {
+    "word": "app",
+    "start": 46.96,
+    "end": 47.46
+  },
+  {
+    "word": "for",
+    "start": 47.46,
+    "end": 47.76
+  },
+  {
+    "word": "the",
+    "start": 47.76,
+    "end": 47.9
+  },
+  {
+    "word": "entire",
+    "start": 47.9,
+    "end": 48.18
+  },
+  {
+    "word": "internet.",
+    "start": 48.18,
+    "end": 48.84
+  },
+  {
+    "word": "First,",
+    "start": 49.4,
+    "end": 49.6
+  },
+  {
+    "word": "your",
+    "start": 50.16,
+    "end": 50.36
+  },
+  {
+    "word": "computer",
+    "start": 50.36,
+    "end": 50.72
+  },
+  {
+    "word": "checks",
+    "start": 50.72,
+    "end": 51.08
+  },
+  {
+    "word": "its",
+    "start": 51.08,
+    "end": 51.32
+  },
+  {
+    "word": "own",
+    "start": 51.32,
+    "end": 51.6
+  },
+  {
+    "word": "memory",
+    "start": 51.6,
+    "end": 51.9
+  },
+  {
+    "word": "cache.",
+    "start": 51.9,
+    "end": 52.26
+  },
+  {
+    "word": "If",
+    "start": 52.92,
+    "end": 53.02
+  },
+  {
+    "word": "missing,",
+    "start": 53.02,
+    "end": 53.26
+  },
+  {
+    "word": "it",
+    "start": 53.84,
+    "end": 53.92
+  },
+  {
+    "word": "asks",
+    "start": 53.92,
+    "end": 54.22
+  },
+  {
+    "word": "a",
+    "start": 54.22,
+    "end": 54.52
+  },
+  {
+    "word": "resolver.",
+    "start": 54.52,
+    "end": 54.94
+  },
+  {
+    "word": "A",
+    "start": 55.74,
+    "end": 55.92
+  },
+  {
+    "word": "digital",
+    "start": 55.92,
+    "end": 56.18
+  },
+  {
+    "word": "librarian",
+    "start": 56.18,
+    "end": 56.88
+  },
+  {
+    "word": "who",
+    "start": 56.88,
+    "end": 57.32
+  },
+  {
+    "word": "searches",
+    "start": 57.32,
+    "end": 57.58
+  },
+  {
+    "word": "the",
+    "start": 57.58,
+    "end": 57.92
+  },
+  {
+    "word": "globe.",
+    "start": 57.92,
+    "end": 58.16
+  },
+  {
+    "word": "Step",
+    "start": 58.16,
+    "end": 58.88
+  },
+  {
+    "word": "1.",
+    "start": 58.88,
+    "end": 59.22
+  },
+  {
+    "word": "The",
+    "start": 59.9,
+    "end": 60.12
+  },
+  {
+    "word": "librarian",
+    "start": 60.12,
+    "end": 60.54
+  },
+  {
+    "word": "asks",
+    "start": 60.54,
+    "end": 61.08
+  },
+  {
+    "word": "the",
+    "start": 61.08,
+    "end": 61.36
+  },
+  {
+    "word": "root",
+    "start": 61.36,
+    "end": 61.52
+  },
+  {
+    "word": "server",
+    "start": 61.52,
+    "end": 61.84
+  },
+  {
+    "word": "where",
+    "start": 61.84,
+    "end": 62.18
+  },
+  {
+    "word": ".com",
+    "start": 62.18,
+    "end": 62.74
+  },
+  {
+    "word": "lives.",
+    "start": 62.74,
+    "end": 63.04
+  },
+  {
+    "word": "Step",
+    "start": 63.78,
+    "end": 63.92
+  },
+  {
+    "word": "2.",
+    "start": 63.92,
+    "end": 64.26
+  },
+  {
+    "word": "The",
+    "start": 65.08,
+    "end": 65.2
+  },
+  {
+    "word": ".com",
+    "start": 65.2,
+    "end": 65.66
+  },
+  {
+    "word": "server",
+    "start": 65.66,
+    "end": 66.18
+  },
+  {
+    "word": "points",
+    "start": 66.18,
+    "end": 66.48
+  },
+  {
+    "word": "to",
+    "start": 66.48,
+    "end": 66.8
+  },
+  {
+    "word": "Google's",
+    "start": 66.8,
+    "end": 67.22
+  },
+  {
+    "word": "authoritative",
+    "start": 67.22,
+    "end": 67.68
+  },
+  {
+    "word": "server.",
+    "start": 67.68,
+    "end": 68.2
+  },
+  {
+    "word": "Step",
+    "start": 68.76,
+    "end": 68.9
+  },
+  {
+    "word": "3.",
+    "start": 68.9,
+    "end": 69.3
+  },
+  {
+    "word": "The",
+    "start": 69.82,
+    "end": 70.02
+  },
+  {
+    "word": "authoritative",
+    "start": 70.02,
+    "end": 70.26
+  },
+  {
+    "word": "server",
+    "start": 70.26,
+    "end": 71.02
+  },
+  {
+    "word": "returns",
+    "start": 71.02,
+    "end": 71.46
+  },
+  {
+    "word": "the",
+    "start": 71.46,
+    "end": 71.88
+  },
+  {
+    "word": "exact",
+    "start": 71.88,
+    "end": 72.08
+  },
+  {
+    "word": "IP",
+    "start": 72.08,
+    "end": 72.66
+  },
+  {
+    "word": "address.",
+    "start": 72.66,
+    "end": 73.18
+  },
+  {
+    "word": "142",
+    "start": 74.14,
+    "end": 74.36
+  },
+  {
+    "word": ".250.",
+    "start": 74.36,
+    "end": 75.9
+  },
+  {
+    "word": "The",
+    "start": 76.44,
+    "end": 76.5
+  },
+  {
+    "word": "librarian",
+    "start": 76.5,
+    "end": 76.92
+  },
+  {
+    "word": "caches",
+    "start": 76.92,
+    "end": 77.34
+  },
+  {
+    "word": "it",
+    "start": 77.34,
+    "end": 77.8
+  },
+  {
+    "word": "with",
+    "start": 77.8,
+    "end": 77.92
+  },
+  {
+    "word": "an",
+    "start": 77.92,
+    "end": 78.04
+  },
+  {
+    "word": "expiring",
+    "start": 78.04,
+    "end": 78.58
+  },
+  {
+    "word": "sticky",
+    "start": 78.58,
+    "end": 78.92
+  },
+  {
+    "word": "note",
+    "start": 78.92,
+    "end": 79.28
+  },
+  {
+    "word": "called",
+    "start": 79.28,
+    "end": 79.66
+  },
+  {
+    "word": "TTL.",
+    "start": 79.66,
+    "end": 79.98
+  },
+  {
+    "word": "Time",
+    "start": 81.28,
+    "end": 81.28
+  },
+  {
+    "word": "to",
+    "start": 81.28,
+    "end": 81.48
+  },
+  {
+    "word": "live.",
+    "start": 81.48,
+    "end": 81.68
+  },
+  {
+    "word": "Your",
+    "start": 82.28,
+    "end": 82.32
+  },
+  {
+    "word": "second",
+    "start": 82.32,
+    "end": 82.64
+  },
+  {
+    "word": "visit",
+    "start": 82.64,
+    "end": 82.86
+  },
+  {
+    "word": "skips",
+    "start": 82.86,
+    "end": 83.36
+  },
+  {
+    "word": "the",
+    "start": 83.36,
+    "end": 83.56
+  },
+  {
+    "word": "trip,",
+    "start": 83.56,
+    "end": 83.78
+  },
+  {
+    "word": "loading",
+    "start": 84.14,
+    "end": 84.58
+  },
+  {
+    "word": "in",
+    "start": 84.58,
+    "end": 84.92
+  },
+  {
+    "word": "8",
+    "start": 84.92,
+    "end": 85.2
+  },
+  {
+    "word": "milliseconds",
+    "start": 85.2,
+    "end": 85.5
+  },
+  {
+    "word": "instead",
+    "start": 85.5,
+    "end": 86.44
+  },
+  {
+    "word": "of",
+    "start": 86.44,
+    "end": 86.6
+  },
+  {
+    "word": "100,",
+    "start": 86.6,
+    "end": 87.0
+  },
+  {
+    "word": "running",
+    "start": 87.0,
+    "end": 87.82
+  },
+  {
+    "word": "ends",
+    "start": 87.82,
+    "end": 88.18
+  },
+  {
+    "word": "look",
+    "start": 88.18,
+    "end": 88.54
+  },
+  {
+    "word": "up",
+    "start": 88.54,
+    "end": 88.76
+  },
+  {
+    "word": "in",
+    "start": 88.76,
+    "end": 88.96
+  },
+  {
+    "word": "your",
+    "start": 88.96,
+    "end": 89.1
+  },
+  {
+    "word": "terminal",
+    "start": 89.1,
+    "end": 89.62
+  },
+  {
+    "word": "proves",
+    "start": 89.62,
+    "end": 90.32
+  },
+  {
+    "word": "this",
+    "start": 90.32,
+    "end": 90.66
+  },
+  {
+    "word": "translation",
+    "start": 90.66,
+    "end": 91.28
+  },
+  {
+    "word": "in",
+    "start": 91.28,
+    "end": 91.7
+  },
+  {
+    "word": "real",
+    "start": 91.7,
+    "end": 91.9
+  },
+  {
+    "word": "time.",
+    "start": 91.9,
+    "end": 92.46
+  },
+  {
+    "word": "When",
+    "start": 93.0,
+    "end": 93.0
+  },
+  {
+    "word": "you",
+    "start": 93.0,
+    "end": 93.1
+  },
+  {
+    "word": "see",
+    "start": 93.1,
+    "end": 93.32
+  },
+  {
+    "word": "DNS",
+    "start": 93.32,
+    "end": 93.78
+  },
+  {
+    "word": "probe",
+    "start": 93.78,
+    "end": 94.2
+  },
+  {
+    "word": "finished,",
+    "start": 94.2,
+    "end": 94.66
+  },
+  {
+    "word": "your",
+    "start": 95.16,
+    "end": 95.38
+  },
+  {
+    "word": "computer",
+    "start": 95.38,
+    "end": 95.7
+  },
+  {
+    "word": "lost",
+    "start": 95.7,
+    "end": 96.14
+  },
+  {
+    "word": "touch",
+    "start": 96.14,
+    "end": 96.58
+  },
+  {
+    "word": "with",
+    "start": 96.58,
+    "end": 96.88
+  },
+  {
+    "word": "the",
+    "start": 96.88,
+    "end": 97.02
+  },
+  {
+    "word": "librarian.",
+    "start": 97.02,
+    "end": 97.5
+  },
+  {
+    "word": "IP",
+    "start": 98.0,
+    "end": 98.14
+  },
+  {
+    "word": "is",
+    "start": 98.14,
+    "end": 98.7
+  },
+  {
+    "word": "the",
+    "start": 98.7,
+    "end": 98.86
+  },
+  {
+    "word": "address.",
+    "start": 98.86,
+    "end": 99.24
+  },
+  {
+    "word": "DNS",
+    "start": 100.12,
+    "end": 100.36
+  },
+  {
+    "word": "is",
+    "start": 100.36,
+    "end": 100.94
+  },
+  {
+    "word": "the",
+    "start": 100.94,
+    "end": 101.12
+  },
+  {
+    "word": "phone",
+    "start": 101.12,
+    "end": 101.32
+  },
+  {
+    "word": "book.",
+    "start": 101.32,
+    "end": 101.64
+  },
+  {
+    "word": "Caching",
+    "start": 102.14,
+    "end": 102.48
+  },
+  {
+    "word": "makes",
+    "start": 102.48,
+    "end": 102.76
+  },
+  {
+    "word": "it",
+    "start": 102.76,
+    "end": 102.98
+  },
+  {
+    "word": "instant.",
+    "start": 102.98,
+    "end": 103.28
+  },
+  {
+    "word": "Follow",
+    "start": 103.96,
+    "end": 104.02
+  },
+  {
+    "word": "code",
+    "start": 104.02,
+    "end": 104.38
+  },
+  {
+    "word": "explains",
+    "start": 104.38,
+    "end": 104.94
+  },
+  {
+    "word": "to",
+    "start": 104.94,
+    "end": 105.36
+  },
+  {
+    "word": "master",
+    "start": 105.36,
+    "end": 105.58
+  },
+  {
+    "word": "how",
+    "start": 105.58,
+    "end": 106.06
+  },
+  {
+    "word": "the",
+    "start": 106.06,
+    "end": 106.2
+  },
+  {
+    "word": "internet",
+    "start": 106.2,
+    "end": 106.54
+  },
+  {
+    "word": "really",
+    "start": 106.54,
+    "end": 107.22
+  },
+  {
+    "word": "works.",
+    "start": 107.22,
+    "end": 107.6
+  }
+]

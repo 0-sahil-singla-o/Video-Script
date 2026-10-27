@@ -1,0 +1,1886 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>What is an IP Address and How Does DNS Work?</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <style>
+    :root {
+      --bg: #07090E;
+      --card-bg: #0F172A;
+      --border: #1E293B;
+      --cyan: #00D2FF;
+      --green: #00E599;
+      --coral: #FF6B4A;
+      --red: #EF4444;
+      --purple: #A855F7;
+      --gold: #F59E0B;
+      --text: #F8FAFC;
+      --muted: #94A3B8;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Inter", sans-serif;
+      overflow: hidden;
+      margin: 0;
+      padding: 0;
+      width: 1080px;
+      height: 1920px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    #canvas {
+      width: 1080px;
+      height: 1920px;
+      position: relative;
+      background: radial-gradient(circle at 50% 30%, #111827 0%, #06080D 80%);
+      overflow: hidden;
+      perspective: 1200px;
+    }
+
+    /* Ambient Cyberpunk Grid */
+    .bg-grid {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background-size: 40px 40px;
+      background-image: radial-gradient(rgba(255, 255, 255, 0.08) 1.5px, transparent 1.5px);
+      pointer-events: none;
+      opacity: 0.5;
+    }
+
+    /* Top Universal Category Tag (Safe Zone: top 180px - 260px) */
+    .top-badge-container {
+      position: absolute;
+      top: 180px;
+      left: 0;
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      z-index: 100;
+    }
+    .top-badge {
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(0, 210, 255, 0.4);
+      color: var(--cyan);
+      font-size: 22px;
+      font-weight: 900;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      padding: 10px 32px;
+      border-radius: 40px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+    }
+
+    /* Universal Timed Scene Clip */
+    .clip {
+      position: absolute;
+      width: 1080px;
+      height: 1920px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+      opacity: 0;
+    }
+
+    /* Hero Act Banner (Top Safe Zone) */
+    .hero-banner {
+      position: absolute;
+      top: 270px;
+      font-size: 44px;
+      font-weight: 900;
+      color: #FFFFFF;
+      letter-spacing: -0.5px;
+      text-align: center;
+      max-width: 920px;
+      line-height: 1.25;
+      text-shadow: 0 8px 25px rgba(0, 0, 0, 0.9);
+      z-index: 90;
+    }
+
+    /* Dynamic Karaoke Subtitles Container (Safe Zone: bottom 380px - 560px) */
+    .subtitle-stage {
+      position: absolute;
+      bottom: 400px;
+      left: 60px;
+      right: 60px;
+      height: 160px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 120;
+      pointer-events: none;
+    }
+
+    .sub-card {
+      position: absolute;
+      width: 100%;
+      text-align: center;
+      opacity: 0;
+      transform: translateY(10px);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .sub-text {
+      font-size: 42px;
+      font-weight: 700;
+      line-height: 1.4;
+      text-shadow: 0 4px 20px rgba(0, 0, 0, 0.95);
+    }
+
+    .karaoke-word {
+      display: inline-block;
+      color: rgba(255, 255, 255, 0.4);
+      margin: 0 8px;
+      transform-origin: center bottom;
+    }
+
+    .phrase-bar-track {
+      width: 320px;
+      height: 4px;
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+
+    .phrase-bar-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--cyan), var(--green));
+      border-radius: 2px;
+    }
+
+    /* ================= 22 MICRO-SCENE VISUAL ASSETS ================= */
+
+    /* SCENE 1: URL BROWSER BAR */
+    .browser-box {
+      width: 680px;
+      background: #0F172A;
+      border: 2px solid #334155;
+      border-radius: 50px;
+      padding: 24px 36px;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7);
+    }
+    .url-icon { width: 32px; height: 32px; fill: var(--green); }
+    .url-input { font-family: monospace; font-size: 34px; font-weight: 700; color: #FFF; }
+    .badge-200 {
+      margin-left: auto;
+      background: rgba(0, 229, 153, 0.15);
+      border: 2px solid var(--green);
+      color: var(--green);
+      font-size: 20px;
+      font-weight: 900;
+      padding: 6px 20px;
+      border-radius: 30px;
+    }
+
+    /* SCENE 2: FIBER OPTIC GLOBE */
+    .globe-rig {
+      position: relative;
+      width: 500px;
+      height: 500px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* SCENE 3 & 4: 3D ISOMETRIC HOUSE & MAILBOX */
+    .house-stage {
+      width: 360px;
+      height: 380px;
+      position: relative;
+      transform-style: preserve-3d;
+      transform: rotateX(25deg) rotateY(-25deg);
+    }
+    .roof-3d {
+      position: absolute;
+      top: 0;
+      left: 20px;
+      width: 0;
+      height: 0;
+      border-left: 160px solid transparent;
+      border-right: 160px solid transparent;
+      border-bottom: 120px solid #DC2626;
+      filter: drop-shadow(0 20px 30px rgba(0,0,0,0.6));
+    }
+    .body-3d {
+      position: absolute;
+      top: 120px;
+      left: 45px;
+      width: 270px;
+      height: 200px;
+      background: #E2E8F0;
+      border-radius: 12px;
+      box-shadow: inset -20px -10px 30px rgba(0,0,0,0.25), 0 30px 60px rgba(0,0,0,0.8);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-end;
+      padding-bottom: 25px;
+    }
+    .door-3d {
+      width: 60px;
+      height: 100px;
+      background: #78350F;
+      border-radius: 8px 8px 0 0;
+    }
+    .plate-3d {
+      position: absolute;
+      top: 35px;
+      background: #0F172A;
+      border: 2px solid var(--cyan);
+      color: var(--cyan);
+      font-family: monospace;
+      font-size: 24px;
+      font-weight: 900;
+      padding: 6px 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 25px rgba(0, 210, 255, 0.5);
+    }
+
+    .mailbox-rig {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+    }
+    .mailbox-head {
+      width: 220px;
+      height: 130px;
+      background: linear-gradient(135deg, #1E293B 0%, #0F172A 100%);
+      border: 3px solid var(--cyan);
+      border-radius: 65px 65px 12px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 20px 40px rgba(0, 210, 255, 0.3);
+    }
+    .data-letter {
+      width: 120px;
+      height: 80px;
+      background: #FFFFFF;
+      border-radius: 8px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: monospace;
+      font-size: 20px;
+      font-weight: 900;
+      color: #0F172A;
+    }
+    .mailbox-stand {
+      width: 24px;
+      height: 140px;
+      background: #475569;
+    }
+
+    /* SCENE 5: IPV4 OCTETS */
+    .octets-row {
+      display: flex;
+      gap: 16px;
+      align-items: center;
+    }
+    .octet-card {
+      background: #111827;
+      border: 3px solid var(--cyan);
+      color: #FFF;
+      font-family: monospace;
+      font-size: 48px;
+      font-weight: 900;
+      padding: 24px 30px;
+      border-radius: 18px;
+      box-shadow: 0 15px 35px rgba(0, 210, 255, 0.35);
+    }
+    .octet-dot { font-size: 56px; color: var(--cyan); font-weight: 900; }
+
+    /* SCENE 6: IPV4 4.3B LIMIT */
+    .pool-counter-box {
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+    }
+    .counter-huge {
+      font-family: monospace;
+      font-size: 76px;
+      font-weight: 900;
+      color: #FFFFFF;
+      letter-spacing: 2px;
+    }
+    .caution-tape {
+      background: rgba(239, 68, 68, 0.25);
+      border: 3px solid var(--red);
+      color: #FECACA;
+      font-size: 30px;
+      font-weight: 900;
+      padding: 12px 40px;
+      border-radius: 12px;
+      letter-spacing: 4px;
+      box-shadow: 0 0 40px rgba(239, 68, 68, 0.5);
+    }
+
+    /* SCENE 7: IPV6 HEX RIBBON */
+    .ipv6-card {
+      background: rgba(168, 85, 247, 0.15);
+      border: 3px solid var(--purple);
+      color: #F3E8FF;
+      font-family: monospace;
+      font-size: 32px;
+      font-weight: 900;
+      padding: 24px 44px;
+      border-radius: 24px;
+      letter-spacing: 2px;
+      box-shadow: 0 0 50px rgba(168, 85, 247, 0.4);
+    }
+
+    /* SCENE 8: ROUTER GATEWAY */
+    .router-station {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 30px;
+    }
+    .public-tag {
+      background: rgba(0, 210, 255, 0.15);
+      border: 2px solid var(--cyan);
+      color: var(--cyan);
+      font-family: monospace;
+      font-size: 26px;
+      font-weight: 900;
+      padding: 10px 32px;
+      border-radius: 12px;
+    }
+    .router-box-3d {
+      width: 320px;
+      height: 180px;
+      background: #1E293B;
+      border: 3px solid var(--green);
+      border-radius: 28px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      box-shadow: 0 0 50px rgba(0, 229, 153, 0.35);
+      position: relative;
+    }
+    .ant-l { position: absolute; top: -40px; left: 45px; width: 8px; height: 40px; background: #64748B; border-radius: 4px; }
+    .ant-r { position: absolute; top: -40px; right: 45px; width: 8px; height: 40px; background: #64748B; border-radius: 4px; }
+    .private-tag {
+      background: rgba(0, 229, 153, 0.15);
+      border: 2px solid var(--green);
+      color: var(--green);
+      font-family: monospace;
+      font-size: 24px;
+      font-weight: 900;
+      padding: 10px 32px;
+      border-radius: 12px;
+    }
+
+    /* SCENE 9 & 10: PHONE CONTACTS APP */
+    .phone-body {
+      width: 340px;
+      height: 520px;
+      background: #020617;
+      border: 8px solid #334155;
+      border-radius: 48px;
+      padding: 28px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      box-shadow: 0 35px 70px rgba(0,0,0,0.8);
+    }
+    .contact-row {
+      background: #1E293B;
+      border-radius: 16px;
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .c-avatar { width: 36px; height: 36px; border-radius: 50%; background: var(--coral); }
+    .c-name { font-size: 22px; font-weight: 800; color: #FFF; }
+
+    /* SCENE 11: 3D DNS PHONE BOOK */
+    .dns-book {
+      width: 440px;
+      height: 520px;
+      background: linear-gradient(135deg, #1E1B4B 0%, #312E81 100%);
+      border: 4px solid var(--purple);
+      border-radius: 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 18px;
+      box-shadow: 0 0 60px rgba(168, 85, 247, 0.45);
+    }
+
+    /* SCENE 12 & 13: RESOLVER LIBRARIAN */
+    .librarian-avatar {
+      width: 280px;
+      height: 280px;
+      background: linear-gradient(135deg, #0284C7 0%, #0369A1 100%);
+      border: 6px solid var(--cyan);
+      border-radius: 50%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 60px rgba(0, 210, 255, 0.5);
+      position: relative;
+    }
+    .hlamp {
+      position: absolute;
+      top: 25px;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: #FEF08A;
+      box-shadow: 0 0 30px #FEF08A;
+    }
+    .glasses-rig { display: flex; gap: 14px; margin-top: 25px; }
+    .g-lens { width: 44px; height: 44px; border: 4px solid #FFF; border-radius: 50%; }
+
+    /* SCENE 14, 15, 16: DNS STEP CHAIN (ROOT -> TLD -> AUTH) */
+    .dns-step-box {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 30px;
+    }
+    .step-counter-tag {
+      background: rgba(0, 229, 153, 0.15);
+      border: 2px solid var(--green);
+      color: var(--green);
+      font-size: 26px;
+      font-weight: 900;
+      letter-spacing: 2px;
+      padding: 10px 32px;
+      border-radius: 30px;
+    }
+    .racks-flow {
+      display: flex;
+      gap: 30px;
+      align-items: center;
+    }
+    .rack-unit {
+      width: 220px;
+      height: 320px;
+      background: #111827;
+      border-radius: 24px;
+      border: 3px solid #334155;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-evenly;
+      padding: 20px 12px;
+    }
+    .rack-unit.gold { border-color: var(--gold); box-shadow: 0 0 35px rgba(245, 158, 11, 0.3); }
+    .rack-unit.blue { border-color: var(--cyan); box-shadow: 0 0 35px rgba(0, 210, 255, 0.3); }
+    .rack-unit.green { border-color: var(--green); box-shadow: 0 0 35px rgba(0, 229, 153, 0.3); }
+    .blade-bar { width: 180px; height: 40px; background: #1E293B; border-radius: 8px; display: flex; align-items: center; padding: 0 16px; }
+    .led-dot { width: 12px; height: 12px; border-radius: 50%; background: var(--green); }
+
+    /* SCENE 17 & 18: TTL STICKY NOTE & SPEEDUP */
+    .ttl-sticky {
+      width: 320px;
+      height: 320px;
+      background: #FEF08A;
+      border-radius: 12px;
+      padding: 32px;
+      color: #713F12;
+      font-family: monospace;
+      box-shadow: 0 30px 60px rgba(0,0,0,0.6);
+      transform: rotate(-5deg);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .speedup-box {
+      display: flex;
+      gap: 40px;
+      align-items: center;
+      background: #111827;
+      border: 3px solid var(--green);
+      border-radius: 24px;
+      padding: 28px 48px;
+      box-shadow: 0 0 50px rgba(0, 229, 153, 0.3);
+    }
+
+    /* SCENE 19: NSLOOKUP TERMINAL */
+    .terminal-panel {
+      width: 820px;
+      background: #0F172A;
+      border: 2px solid #334155;
+      border-radius: 24px;
+      overflow: hidden;
+      box-shadow: 0 35px 70px rgba(0,0,0,0.8);
+    }
+    .t-header {
+      height: 48px;
+      background: #1E293B;
+      display: flex;
+      align-items: center;
+      padding: 0 20px;
+      gap: 10px;
+    }
+    .t-dot { width: 14px; height: 14px; border-radius: 50%; }
+    .t-code {
+      padding: 36px 40px;
+      font-family: monospace;
+      font-size: 26px;
+      line-height: 1.6;
+    }
+
+    /* SCENE 20: DNS ERROR DINOSAUR */
+    .error-card-huge {
+      width: 720px;
+      background: rgba(239, 68, 68, 0.12);
+      border: 3px solid var(--red);
+      border-radius: 28px;
+      padding: 44px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+      box-shadow: 0 0 50px rgba(239, 68, 68, 0.4);
+    }
+
+    /* SCENE 21 & 22: 3-BEAT RECAP & CTA */
+    .recap-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      width: 760px;
+    }
+    .recap-card-item {
+      background: #111827;
+      border: 2px solid var(--cyan);
+      border-radius: 20px;
+      padding: 24px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+    }
+    .cta-banner-huge {
+      font-family: monospace;
+      font-size: 48px;
+      font-weight: 900;
+      color: var(--green);
+      text-align: center;
+      letter-spacing: 3px;
+      text-shadow: 0 0 35px rgba(0, 229, 153, 0.6);
+    }
+  </style>
+</head>
+<body>
+  <div id="canvas" data-composition-id="main" data-width="1080" data-height="1920" data-duration="108.3" data-layout-allow-overlap="true">
+    <div class="bg-grid"></div>
+
+    <!-- Audio Track -->
+    <audio id="narration" src="dist/voice.wav" data-start="0" data-duration="108.3" preload="auto"></audio>
+
+    <!-- Top Badge -->
+    <div class="top-badge-container">
+      <div class="top-badge">HOW THE INTERNET WORKS</div>
+    </div>
+
+    <!-- ================= 22 MICRO-SCENES ================= -->
+
+    <!-- SCENE 1: THE HOOK (0.0s - 4.0s) -->
+    <div id="clip1" class="clip" data-start="0" data-duration="4.0" data-hold="true">
+      <div class="hero-banner">YOU TYPE GOOGLE.COM</div>
+      <div class="browser-box" id="s1-browser">
+        <svg class="url-icon" viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
+        <span class="url-input">google.com</span>
+        <span class="badge-200">200 OK</span>
+      </div>
+    </div>
+
+    <!-- SCENE 2: THE QUESTION (4.0s - 6.3s) -->
+    <div id="clip2" class="clip" data-start="4.0" data-duration="2.3" data-hold="true">
+      <div class="hero-banner">HOW DOES YOUR DEVICE TRAVEL?</div>
+      <div class="globe-rig" id="s2-globe">
+        <svg width="360" height="360" viewBox="0 0 100 100" fill="none">
+          <circle cx="50" cy="50" r="42" stroke="#00D2FF" stroke-width="2.5" stroke-dasharray="4 2"/>
+          <ellipse cx="50" cy="50" rx="42" ry="18" stroke="#00D2FF" stroke-width="2"/>
+          <ellipse cx="50" cy="50" rx="18" ry="42" stroke="#00D2FF" stroke-width="2"/>
+          <circle cx="28" cy="40" r="4" fill="#00E599"/>
+          <circle cx="72" cy="55" r="4" fill="#FF6B4A"/>
+          <path d="M28 40 Q50 15 72 55" stroke="#00E599" stroke-width="3" stroke-linecap="round"/>
+        </svg>
+      </div>
+    </div>
+
+    <!-- SCENE 3: POSTAL METAPHOR (6.3s - 10.9s) -->
+    <div id="clip3" class="clip" data-start="6.3" data-duration="4.6" data-hold="true">
+      <div class="hero-banner">IP ADDRESS = HOME POSTAL ADDRESS</div>
+      <div class="house-stage" id="s3-house">
+        <div class="roof-3d"></div>
+        <div class="body-3d">
+          <div class="plate-3d">192.168.1.10</div>
+          <div class="door-3d"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SCENE 4: THE MAILBOX (10.9s - 14.0s) -->
+    <div id="clip4" class="clip" data-start="10.9" data-duration="3.1" data-hold="true">
+      <div class="hero-banner">LETTERS NEED A STREET NUMBER</div>
+      <div class="mailbox-rig" id="s4-box">
+        <div class="data-letter">DATA</div>
+        <div class="mailbox-head"><span style="font-size: 26px; font-weight: 900; color: var(--cyan);">PACKET</span></div>
+        <div class="mailbox-stand"></div>
+      </div>
+    </div>
+
+    <!-- SCENE 5: IPV4 NUMBERS (14.0s - 19.9s) -->
+    <div id="clip5" class="clip" data-start="14.0" data-duration="5.9" data-hold="true">
+      <div class="hero-banner">FOUR NUMBERS SEPARATED BY DOTS</div>
+      <div class="octets-row" id="s5-octets">
+        <div class="octet-card">192</div>
+        <div class="octet-dot">.</div>
+        <div class="octet-card">168</div>
+        <div class="octet-dot">.</div>
+        <div class="octet-card">1</div>
+        <div class="octet-dot">.</div>
+        <div class="octet-card">1</div>
+      </div>
+    </div>
+
+    <!-- SCENE 6: IPV4 LIMIT (19.9s - 24.5s) -->
+    <div id="clip6" class="clip" data-start="19.9" data-duration="4.6" data-hold="true">
+      <div class="hero-banner">IPV4 = 4.3 BILLION ADDRESSES</div>
+      <div class="pool-counter-box" id="s6-pool">
+        <div class="counter-huge">4,294,967,296</div>
+        <div class="caution-tape">POOL EXHAUSTED</div>
+      </div>
+    </div>
+
+    <!-- SCENE 7: ENTER IPV6 (24.5s - 29.5s) -->
+    <div id="clip7" class="clip" data-start="24.5" data-duration="5.0" data-hold="true">
+      <div class="hero-banner">ENTER IPV6: 340 UNDECILLION</div>
+      <div class="ipv6-card" id="s7-v6">2607:f8b0:4005:805::200e</div>
+    </div>
+
+    <!-- SCENE 8: ROUTER GATEWAY (29.5s - 35.5s) -->
+    <div id="clip8" class="clip" data-start="29.5" data-duration="6.0" data-hold="true">
+      <div class="hero-banner">ROUTER = BUILDING MAILROOM</div>
+      <div class="router-station" id="s8-router">
+        <div class="public-tag">PUBLIC IP: 73.189.42.10</div>
+        <div class="router-box-3d">
+          <div class="ant-l"></div><div class="ant-r"></div>
+          <span style="font-weight: 900; font-size: 28px; color: #FFF;">ROUTER GATEWAY</span>
+          <span style="font-size: 20px; color: var(--green); font-weight: 800;">NAT TRANSLATION</span>
+        </div>
+        <div class="private-tag">PRIVATE: 192.168.1.X</div>
+      </div>
+    </div>
+
+    <!-- SCENE 9: NAMES VS NUMBERS (35.5s - 40.3s) -->
+    <div id="clip9" class="clip" data-start="35.5" data-duration="4.8" data-hold="true">
+      <div class="hero-banner">HUMANS PREFER NAMES</div>
+      <div style="text-align: center; font-size: 80px; font-weight: 900; color: var(--coral);">
+        NAMES &gt; NUMBERS
+      </div>
+    </div>
+
+    <!-- SCENE 10: CONTACTS APP (40.3s - 45.2s) -->
+    <div id="clip10" class="clip" data-start="40.3" data-duration="4.9" data-hold="true">
+      <div class="hero-banner">YOUR PHONE CONTACTS APP</div>
+      <div class="phone-body" id="s10-phone">
+        <div class="contact-row"><div class="c-avatar"></div><div class="c-name">Mom (555-0192)</div></div>
+        <div class="contact-row" style="border: 2px solid var(--green);"><div class="c-avatar" style="background: var(--green);"></div><div class="c-name">google.com</div></div>
+        <div class="contact-row"><div class="c-avatar"></div><div class="c-name">youtube.com</div></div>
+      </div>
+    </div>
+
+    <!-- SCENE 11: DNS INTRODUCED (45.2s - 49.3s) -->
+    <div id="clip11" class="clip" data-start="45.2" data-duration="4.1" data-hold="true">
+      <div class="hero-banner">DNS = INTERNET PHONE BOOK</div>
+      <div class="dns-book" id="s11-book">
+        <div style="font-size: 64px; font-weight: 900; color: #FFF;">DNS</div>
+        <div style="font-size: 24px; font-weight: 800; color: #C4B5FD; text-align: center;">DOMAIN NAME SYSTEM</div>
+      </div>
+    </div>
+
+    <!-- SCENE 12: BROWSER CACHE (49.3s - 52.8s) -->
+    <div id="clip12" class="clip" data-start="49.3" data-duration="3.5" data-hold="true">
+      <div class="hero-banner">STEP 1: CHECK LOCAL CACHE</div>
+      <div style="background: rgba(239, 68, 68, 0.15); border: 3px solid var(--red); color: #FCA5A5; font-size: 32px; font-weight: 900; padding: 24px 50px; border-radius: 20px;">
+        LOCAL CACHE: MISS
+      </div>
+    </div>
+
+    <!-- SCENE 13: THE RESOLVER LIBRARIAN (52.8s - 58.6s) -->
+    <div id="clip13" class="clip" data-start="52.8" data-duration="5.8" data-hold="true">
+      <div class="hero-banner">THE DIGITAL LIBRARIAN</div>
+      <div class="librarian-avatar" id="s13-librarian">
+        <div class="hlamp"></div>
+        <div class="glasses-rig"><div class="g-lens"></div><div class="g-lens"></div></div>
+        <div style="font-size: 22px; font-weight: 900; color: #FFF; margin-top: 18px;">RECURSIVE RESOLVER</div>
+      </div>
+    </div>
+
+    <!-- SCENE 14: ROOT SERVER (58.6s - 63.6s) -->
+    <div id="clip14" class="clip" data-start="58.6" data-duration="5.0" data-hold="true">
+      <div class="hero-banner">STEP 1: ASK ROOT SERVER (.)</div>
+      <div class="dns-step-box">
+        <div class="step-counter-tag">STEP 1 / 3</div>
+        <div class="rack-unit gold">
+          <span style="font-size: 22px; font-weight: 900; color: var(--gold);">ROOT (.)</span>
+          <div class="blade-bar"><div class="led-dot"></div></div>
+          <div class="blade-bar"><div class="led-dot"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SCENE 15: TLD SERVER (63.6s - 68.6s) -->
+    <div id="clip15" class="clip" data-start="63.6" data-duration="5.0" data-hold="true">
+      <div class="hero-banner">STEP 2: ASK .COM TLD SERVER</div>
+      <div class="dns-step-box">
+        <div class="step-counter-tag">STEP 2 / 3</div>
+        <div class="rack-unit blue">
+          <span style="font-size: 22px; font-weight: 900; color: var(--cyan);">.COM TLD</span>
+          <div class="blade-bar"><div class="led-dot"></div></div>
+          <div class="blade-bar"><div class="led-dot"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SCENE 16: AUTHORITATIVE HIT (68.6s - 76.4s) -->
+    <div id="clip16" class="clip" data-start="68.6" data-duration="7.8" data-hold="true">
+      <div class="hero-banner">STEP 3: GOOGLE AUTHORITATIVE NS</div>
+      <div class="dns-step-box">
+        <div class="step-counter-tag" style="border-color: var(--green); color: var(--green);">RESOLVED: 142.250.190.46</div>
+        <div class="rack-unit green">
+          <span style="font-size: 22px; font-weight: 900; color: var(--green);">GOOGLE NS</span>
+          <div class="blade-bar"><div class="led-dot"></div></div>
+          <div class="blade-bar"><div class="led-dot"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SCENE 17: TTL STICKY NOTE (76.4s - 82.1s) -->
+    <div id="clip17" class="clip" data-start="76.4" data-duration="5.7" data-hold="true">
+      <div class="hero-banner">TTL = EXPIRING STICKY NOTE</div>
+      <div class="ttl-sticky" id="s17-ttl">
+        <div style="font-size: 24px; font-weight: 900;">DNS RECORD</div>
+        <div style="font-size: 32px; font-weight: 900;">142.250.190.46</div>
+        <div style="font-size: 24px; font-weight: 800; color: #B45309;">TTL: 300 SECONDS</div>
+      </div>
+    </div>
+
+    <!-- SCENE 18: CACHE SPEEDUP (82.1s - 87.5s) -->
+    <div id="clip18" class="clip" data-start="82.1" data-duration="5.4" data-hold="true">
+      <div class="hero-banner">120 MS VS 8 MS (15X FASTER)</div>
+      <div class="speedup-box" id="s18-speed">
+        <div style="font-family: monospace; font-size: 32px; color: #94A3B8;">1st: 120 ms</div>
+        <div style="font-family: monospace; font-size: 54px; font-weight: 900; color: var(--green);">2nd: 8 ms ⚡</div>
+      </div>
+    </div>
+
+    <!-- SCENE 19: NSLOOKUP TERMINAL (87.5s - 92.8s) -->
+    <div id="clip19" class="clip" data-start="87.5" data-duration="5.3" data-hold="true">
+      <div class="hero-banner">REAL TERMINAL NSLOOKUP</div>
+      <div class="terminal-panel" id="s19-term">
+        <div class="t-header"><div class="t-dot" style="background:#EF4444"></div><div class="t-dot" style="background:#F59E0B"></div><div class="t-dot" style="background:#10B981"></div></div>
+        <div class="t-code">
+          <p><span style="color:#38BDF8;">$ nslookup google.com</span></p>
+          <p style="color:#94A3B8;">Server:  1.1.1.1 (Cloudflare)</p>
+          <p style="color:#00E599; font-weight:800; margin-top: 14px;">Address: 142.250.190.46</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- SCENE 20: DNS ERROR EXPLAINED (92.8s - 97.9s) -->
+    <div id="clip20" class="clip" data-start="92.8" data-duration="5.1" data-hold="true">
+      <div class="hero-banner">DNS_PROBE_FINISHED_NO_INTERNET</div>
+      <div class="error-card-huge" id="s20-error">
+        <div style="font-family: monospace; font-size: 34px; font-weight: 900; color: #FFF;">DNS_PROBE_FINISHED</div>
+        <div style="font-size: 24px; color: #FECACA;">Lost contact with the librarian</div>
+      </div>
+    </div>
+
+    <!-- SCENE 21: RECAP IN THREE BEATS (97.9s - 103.8s) -->
+    <div id="clip21" class="clip" data-start="97.9" data-duration="5.9" data-hold="true">
+      <div class="hero-banner">THE THREE-BEAT RECAP</div>
+      <div class="recap-stack" id="s21-recap">
+        <div class="recap-card-item"><span style="font-size: 26px; font-weight: 800;">1. IP Address</span><span style="font-size: 24px; color: var(--cyan); font-weight: 900;">The Street Address</span></div>
+        <div class="recap-card-item"><span style="font-size: 26px; font-weight: 800;">2. DNS System</span><span style="font-size: 24px; color: var(--purple); font-weight: 900;">The Contacts App</span></div>
+        <div class="recap-card-item"><span style="font-size: 26px; font-weight: 800;">3. Local Cache</span><span style="font-size: 24px; color: var(--green); font-weight: 900;">Lightning Fast 8ms</span></div>
+      </div>
+    </div>
+
+    <!-- SCENE 22: CTA (103.8s - 108.3s) -->
+    <div id="clip22" class="clip" data-start="103.8" data-duration="4.5" data-hold="true">
+      <div class="hero-banner">MASTER HOW THE INTERNET WORKS</div>
+      <div class="cta-banner-huge">@code_explains</div>
+    </div>
+
+    <!-- ================= DYNAMIC KARAOKE SUBTITLES ================= -->
+    <div class="subtitle-stage">
+      <div id="sub-p-0" class="sub-card">
+        <div class="sub-text"><span id="kw-0" class="karaoke-word">You</span> <span id="kw-1" class="karaoke-word">type</span> <span id="kw-2" class="karaoke-word">Google</span> <span id="kw-3" class="karaoke-word">.com</span> <span id="kw-4" class="karaoke-word">and</span></div>
+        <div class="phrase-bar-track"><div id="bar-0" class="phrase-bar-fill"></div></div>
+      </div>
+      <div id="sub-p-1" class="sub-card">
+        <div class="sub-text"><span id="kw-5" class="karaoke-word">the</span> <span id="kw-6" class="karaoke-word">page</span> <span id="kw-7" class="karaoke-word">loads</span> <span id="kw-8" class="karaoke-word">instantly.</span></div>
+        <div class="phrase-bar-track"><div id="bar-1" class="phrase-bar-fill"></div></div>
+      </div>
+      <div id="sub-p-2" class="sub-card">
+        <div class="sub-text"><span id="kw-9" class="karaoke-word">How</span> <span id="kw-10" class="karaoke-word">did</span> <span id="kw-11" class="karaoke-word">your</span> <span id="kw-12" class="karaoke-word">computer</span> <span id="kw-13" class="karaoke-word">know</span></div>
+        <div class="phrase-bar-track"><div id="bar-2" class="phrase-bar-fill"></div></div>
+      </div>
+      <div id="sub-p-3" class="sub-card">
+        <div class="sub-text"><span id="kw-14" class="karaoke-word">where</span> <span id="kw-15" class="karaoke-word">to</span> <span id="kw-16" class="karaoke-word">go?</span></div>
+        <div class="phrase-bar-track"><div id="bar-3" class="phrase-bar-fill"></div></div>
+      </div>
+      <div id="sub-p-4" class="sub-card">
+        <div class="sub-text"><span id="kw-17" class="karaoke-word">Every</span> <span id="kw-18" class="karaoke-word">device</span> <span id="kw-19" class="karaoke-word">on</span> <span id="kw-20" class="karaoke-word">Earth</span> <span id="kw-21" class="karaoke-word">has</span></div>
+        <div class="phrase-bar-track"><div id="bar-4" class="phrase-bar-fill"></div></div>
+      </div>
+      <div id="sub-p-5" class="sub-card">
+        <div class="sub-text"><span id="kw-22" class="karaoke-word">an</span> <span id="kw-23" class="karaoke-word">address,</span></div>
+        <div class="phrase-bar-track"><div id="bar-5" class="phrase-bar-fill"></div></div>
+      </div>
+      <div id="sub-p-6" class="sub-card">
+        <div class="sub-text"><span id="kw-24" class="karaoke-word">like</span> <span id="kw-25" class="karaoke-word">your</span> <span id="kw-26" class="karaoke-word">home</span> <span id="kw-27" class="karaoke-word">postal</span> <span id="kw-28" class="karaoke-word">address.</span></div>
+        <div class="phrase-bar-track"><div id="bar-6" class="phrase-bar-fill"></div></div>
+      </div>
+      <div id="sub-p-7" class="sub-card">
+        <div class="sub-text"><span id="kw-29" class="karaoke-word">A</span> <span id="kw-30" class="karaoke-word">letter</span> <span id="kw-31" class="karaoke-word">needs</span> <span id="kw-32" class="karaoke-word">a</span> <span id="kw-33" class="karaoke-word">street</span></div>
+        <div class="phrase-bar-track"><div id="bar-7" class="phrase-bar-fill"></div></div>
+      </div>
+      <div id="sub-p-8" class="sub-card">
+        <div class="sub-text"><span id="kw-34" class="karaoke-word">number</span> <span id="kw-35" class="karaoke-word">to</span> <span id="kw-36" class="karaoke-word">reach</span> <span id="kw-37" class="karaoke-word">your</span> <span id="kw-38" class="karaoke-word">mailbox.</span></div>
+        <div class="phrase-bar-track"><div id="bar-8" class="phrase-bar-fill"></div></div>
+      </div>
+      <div id="sub-p-9" class="sub-card">
+        <div class="sub-text"><span id="kw-39" class="karaoke-word">Computers</span> <span id="kw-40" class="karaoke-word">use</span> <span id="kw-41" class="karaoke-word">four</span> <span id="kw-42" class="karaoke-word">numbers,</span></div>
+        <div class="phrase-bar-track"><div id="bar-9" class="phrase-bar-fill"></div></div>
+      </div>
+      <div id="sub-p-10" class="sub-card">
+        <div class="sub-text"><span id="kw-43" class="karaoke-word">like</span> <span id="kw-44" class="karaoke-word">192</span> <span id="kw-45" class="karaoke-word">.168</span> <span id="kw-46" class="karaoke-word">.1</span> <span id="kw-47" class="karaoke-word">.1.</span></div>
+        <div class="phrase-bar-track"><div id="bar-10" class="phrase-bar-fill"></div></div>
+      </div>
+      <div id="sub-p-11" class="sub-card">
+        <div class="sub-text"><span id="kw-48" class="karaoke-word">This</span> <span id="kw-49" class="karaoke-word">format</span> <span id="kw-50" class="karaoke-word">is</span> <span id="kw-51" class="karaoke-word">IP4.</span></div>
+        <div class="phrase-bar-track"><div id="bar-11" class="phrase-bar-fill"></div></div>
+      </div>
+      <div id="sub-p-12" class="sub-card">
+        <div class="sub-text"><span id="kw-52" class="karaoke-word">It</span> <span id="kw-53" class="karaoke-word">holds</span> <span id="kw-54" class="karaoke-word">four</span> <span id="kw-55" class="karaoke-word">billion</span> <span id="kw-56" class="karaoke-word">addresses.</span></div>
+        <div class="phrase-bar-track"><div id="bar-12" class="phrase-bar-fill"></div></div>
+      </div>
+      <div id="sub-p-13" class="sub-card">
+        <div class="sub-text"><span id="kw-57" class="karaoke-word">We</span> <span id="kw-58" class="karaoke-word">ran</span> <span id="kw-59" class="karaoke-word">out</span> <span id="kw-60" class="karaoke-word">of</span> <span id="kw-61" class="karaoke-word">addresses,</span></div>
+        <div class="phrase-bar-track"><div id="bar-13" class="phrase-bar-fill"></div></div>
+      </div>
+      <div id="sub-p-14" class="sub-card">
+        <div class="sub-text"><span id="kw-62" class="karaoke-word">so</span> <span id="kw-63" class="karaoke-word">IP6</span> <span id="kw-64" class="karaoke-word">added</span> <span id="kw-65" class="karaoke-word">vastly</span> <span id="kw-66" class="karaoke-word">longer</span></div>
+        <div class="phrase-bar-track"><div id="bar-14" class="phrase-bar-fill"></div></div>
+      </div>
+      <div id="sub-p-15" class="sub-card">
+        <div class="sub-text"><span id="kw-67" class="karaoke-word">strings.</span></div>
+        <div class="phrase-bar-track"><div id="bar-15" class="phrase-bar-fill"></div></div>
+      </div>
+      <div id="sub-p-16" class="sub-card">
+        <div class="sub-text"><span id="kw-68" class="karaoke-word">Your</span> <span id="kw-69" class="karaoke-word">router</span> <span id="kw-70" class="karaoke-word">gives</span> <span id="kw-71" class="karaoke-word">one</span> <span id="kw-72" class="karaoke-word">public</span></div>
+        <div class="phrase-bar-track"><div id="bar-16" class="phrase-bar-fill"></div></div>
+      </div>
+      <div id="sub-p-17" class="sub-card">
+        <div class="sub-text"><span id="kw-73" class="karaoke-word">building</span> <span id="kw-74" class="karaoke-word">address</span> <span id="kw-75" class="karaoke-word">outside,</span></div>
+        <div class="phrase-bar-track"><div id="bar-17" class="phrase-bar-fill"></div></div>
+      </div>
+      <div id="sub-p-18" class="sub-card">
+        <div class="sub-text"><span id="kw-76" class="karaoke-word">and</span> <span id="kw-77" class="karaoke-word">private</span> <span id="kw-78" class="karaoke-word">apartment</span> <span id="kw-79" class="karaoke-word">numbers</span> <span id="kw-80" class="karaoke-word">inside.</span></div>
+        <div class="phrase-bar-track"><div id="bar-18" class="phrase-bar-fill"></div></div>
+      </div>
+      <div id="sub-p-19" class="sub-card">
+        <div class="sub-text"><span id="kw-81" class="karaoke-word">Computers</span> <span id="kw-82" class="karaoke-word">need</span> <span id="kw-83" class="karaoke-word">numbers,</span></div>
+        <div class="phrase-bar-track"><div id="bar-19" class="phrase-bar-fill"></div></div>
+      </div>
+      <div id="sub-p-20" class="sub-card">
+        <div class="sub-text"><span id="kw-84" class="karaoke-word">but</span> <span id="kw-85" class="karaoke-word">humans</span> <span id="kw-86" class="karaoke-word">cannot</span> <span id="kw-87" class="karaoke-word">memorize</span> <span id="kw-88" class="karaoke-word">endless</span></div>
+        <div class="phrase-bar-track"><div id="bar-20" class="phrase-bar-fill"></div></div>
+      </div>
+      <div id="sub-p-21" class="sub-card">
+        <div class="sub-text"><span id="kw-89" class="karaoke-word">digits.</span></div>
+        <div class="phrase-bar-track"><div id="bar-21" class="phrase-bar-fill"></div></div>
+      </div>
+      <div id="sub-p-22" class="sub-card">
+        <div class="sub-text"><span id="kw-90" class="karaoke-word">You</span> <span id="kw-91" class="karaoke-word">do</span> <span id="kw-92" class="karaoke-word">not</span> <span id="kw-93" class="karaoke-word">memorize</span> <span id="kw-94" class="karaoke-word">phone</span></div>
+        <div class="phrase-bar-track"><div id="bar-22" class="phrase-bar-fill"></div></div>
+      </div>
+      <div id="sub-p-23" class="sub-card">
+        <div class="sub-text"><span id="kw-95" class="karaoke-word">numbers.</span></div>
+        <div class="phrase-bar-track"><div id="bar-23" class="phrase-bar-fill"></div></div>
+      </div>
+      <div id="sub-p-24" class="sub-card">
+        <div class="sub-text"><span id="kw-96" class="karaoke-word">You</span> <span id="kw-97" class="karaoke-word">tap</span> <span id="kw-98" class="karaoke-word">names</span> <span id="kw-99" class="karaoke-word">in</span> <span id="kw-100" class="karaoke-word">your</span></div>
+        <div class="phrase-bar-track"><div id="bar-24" class="phrase-bar-fill"></div></div>
+      </div>
+      <div id="sub-p-25" class="sub-card">
+        <div class="sub-text"><span id="kw-101" class="karaoke-word">contacts</span> <span id="kw-102" class="karaoke-word">app.</span></div>
+        <div class="phrase-bar-track"><div id="bar-25" class="phrase-bar-fill"></div></div>
+      </div>
+      <div id="sub-p-26" class="sub-card">
+        <div class="sub-text"><span id="kw-103" class="karaoke-word">DNS</span> <span id="kw-104" class="karaoke-word">is</span> <span id="kw-105" class="karaoke-word">the</span> <span id="kw-106" class="karaoke-word">contacts</span> <span id="kw-107" class="karaoke-word">app</span></div>
+        <div class="phrase-bar-track"><div id="bar-26" class="phrase-bar-fill"></div></div>
+      </div>
+      <div id="sub-p-27" class="sub-card">
+        <div class="sub-text"><span id="kw-108" class="karaoke-word">for</span> <span id="kw-109" class="karaoke-word">the</span> <span id="kw-110" class="karaoke-word">entire</span> <span id="kw-111" class="karaoke-word">internet.</span></div>
+        <div class="phrase-bar-track"><div id="bar-27" class="phrase-bar-fill"></div></div>
+      </div>
+      <div id="sub-p-28" class="sub-card">
+        <div class="sub-text"><span id="kw-112" class="karaoke-word">First,</span></div>
+        <div class="phrase-bar-track"><div id="bar-28" class="phrase-bar-fill"></div></div>
+      </div>
+      <div id="sub-p-29" class="sub-card">
+        <div class="sub-text"><span id="kw-113" class="karaoke-word">your</span> <span id="kw-114" class="karaoke-word">computer</span> <span id="kw-115" class="karaoke-word">checks</span> <span id="kw-116" class="karaoke-word">its</span> <span id="kw-117" class="karaoke-word">own</span></div>
+        <div class="phrase-bar-track"><div id="bar-29" class="phrase-bar-fill"></div></div>
+      </div>
+      <div id="sub-p-30" class="sub-card">
+        <div class="sub-text"><span id="kw-118" class="karaoke-word">memory</span> <span id="kw-119" class="karaoke-word">cache.</span></div>
+        <div class="phrase-bar-track"><div id="bar-30" class="phrase-bar-fill"></div></div>
+      </div>
+      <div id="sub-p-31" class="sub-card">
+        <div class="sub-text"><span id="kw-120" class="karaoke-word">If</span> <span id="kw-121" class="karaoke-word">missing,</span></div>
+        <div class="phrase-bar-track"><div id="bar-31" class="phrase-bar-fill"></div></div>
+      </div>
+      <div id="sub-p-32" class="sub-card">
+        <div class="sub-text"><span id="kw-122" class="karaoke-word">it</span> <span id="kw-123" class="karaoke-word">asks</span> <span id="kw-124" class="karaoke-word">a</span> <span id="kw-125" class="karaoke-word">resolver.</span></div>
+        <div class="phrase-bar-track"><div id="bar-32" class="phrase-bar-fill"></div></div>
+      </div>
+      <div id="sub-p-33" class="sub-card">
+        <div class="sub-text"><span id="kw-126" class="karaoke-word">A</span> <span id="kw-127" class="karaoke-word">digital</span> <span id="kw-128" class="karaoke-word">librarian</span> <span id="kw-129" class="karaoke-word">who</span> <span id="kw-130" class="karaoke-word">searches</span></div>
+        <div class="phrase-bar-track"><div id="bar-33" class="phrase-bar-fill"></div></div>
+      </div>
+      <div id="sub-p-34" class="sub-card">
+        <div class="sub-text"><span id="kw-131" class="karaoke-word">the</span> <span id="kw-132" class="karaoke-word">globe.</span> <span id="kw-133" class="karaoke-word">Step</span> <span id="kw-134" class="karaoke-word">1.</span></div>
+        <div class="phrase-bar-track"><div id="bar-34" class="phrase-bar-fill"></div></div>
+      </div>
+      <div id="sub-p-35" class="sub-card">
+        <div class="sub-text"><span id="kw-135" class="karaoke-word">The</span> <span id="kw-136" class="karaoke-word">librarian</span> <span id="kw-137" class="karaoke-word">asks</span> <span id="kw-138" class="karaoke-word">the</span> <span id="kw-139" class="karaoke-word">root</span></div>
+        <div class="phrase-bar-track"><div id="bar-35" class="phrase-bar-fill"></div></div>
+      </div>
+      <div id="sub-p-36" class="sub-card">
+        <div class="sub-text"><span id="kw-140" class="karaoke-word">server</span> <span id="kw-141" class="karaoke-word">where</span> <span id="kw-142" class="karaoke-word">.com</span> <span id="kw-143" class="karaoke-word">lives.</span></div>
+        <div class="phrase-bar-track"><div id="bar-36" class="phrase-bar-fill"></div></div>
+      </div>
+      <div id="sub-p-37" class="sub-card">
+        <div class="sub-text"><span id="kw-144" class="karaoke-word">Step</span> <span id="kw-145" class="karaoke-word">2.</span></div>
+        <div class="phrase-bar-track"><div id="bar-37" class="phrase-bar-fill"></div></div>
+      </div>
+      <div id="sub-p-38" class="sub-card">
+        <div class="sub-text"><span id="kw-146" class="karaoke-word">The</span> <span id="kw-147" class="karaoke-word">.com</span> <span id="kw-148" class="karaoke-word">server</span> <span id="kw-149" class="karaoke-word">points</span> <span id="kw-150" class="karaoke-word">to</span></div>
+        <div class="phrase-bar-track"><div id="bar-38" class="phrase-bar-fill"></div></div>
+      </div>
+      <div id="sub-p-39" class="sub-card">
+        <div class="sub-text"><span id="kw-151" class="karaoke-word">Google's</span> <span id="kw-152" class="karaoke-word">authoritative</span> <span id="kw-153" class="karaoke-word">server.</span></div>
+        <div class="phrase-bar-track"><div id="bar-39" class="phrase-bar-fill"></div></div>
+      </div>
+      <div id="sub-p-40" class="sub-card">
+        <div class="sub-text"><span id="kw-154" class="karaoke-word">Step</span> <span id="kw-155" class="karaoke-word">3.</span></div>
+        <div class="phrase-bar-track"><div id="bar-40" class="phrase-bar-fill"></div></div>
+      </div>
+      <div id="sub-p-41" class="sub-card">
+        <div class="sub-text"><span id="kw-156" class="karaoke-word">The</span> <span id="kw-157" class="karaoke-word">authoritative</span> <span id="kw-158" class="karaoke-word">server</span> <span id="kw-159" class="karaoke-word">returns</span> <span id="kw-160" class="karaoke-word">the</span></div>
+        <div class="phrase-bar-track"><div id="bar-41" class="phrase-bar-fill"></div></div>
+      </div>
+      <div id="sub-p-42" class="sub-card">
+        <div class="sub-text"><span id="kw-161" class="karaoke-word">exact</span> <span id="kw-162" class="karaoke-word">IP</span> <span id="kw-163" class="karaoke-word">address.</span></div>
+        <div class="phrase-bar-track"><div id="bar-42" class="phrase-bar-fill"></div></div>
+      </div>
+      <div id="sub-p-43" class="sub-card">
+        <div class="sub-text"><span id="kw-164" class="karaoke-word">142</span> <span id="kw-165" class="karaoke-word">.250.</span></div>
+        <div class="phrase-bar-track"><div id="bar-43" class="phrase-bar-fill"></div></div>
+      </div>
+      <div id="sub-p-44" class="sub-card">
+        <div class="sub-text"><span id="kw-166" class="karaoke-word">The</span> <span id="kw-167" class="karaoke-word">librarian</span> <span id="kw-168" class="karaoke-word">caches</span> <span id="kw-169" class="karaoke-word">it</span> <span id="kw-170" class="karaoke-word">with</span></div>
+        <div class="phrase-bar-track"><div id="bar-44" class="phrase-bar-fill"></div></div>
+      </div>
+      <div id="sub-p-45" class="sub-card">
+        <div class="sub-text"><span id="kw-171" class="karaoke-word">an</span> <span id="kw-172" class="karaoke-word">expiring</span> <span id="kw-173" class="karaoke-word">sticky</span> <span id="kw-174" class="karaoke-word">note</span> <span id="kw-175" class="karaoke-word">called</span></div>
+        <div class="phrase-bar-track"><div id="bar-45" class="phrase-bar-fill"></div></div>
+      </div>
+      <div id="sub-p-46" class="sub-card">
+        <div class="sub-text"><span id="kw-176" class="karaoke-word">TTL.</span></div>
+        <div class="phrase-bar-track"><div id="bar-46" class="phrase-bar-fill"></div></div>
+      </div>
+      <div id="sub-p-47" class="sub-card">
+        <div class="sub-text"><span id="kw-177" class="karaoke-word">Time</span> <span id="kw-178" class="karaoke-word">to</span> <span id="kw-179" class="karaoke-word">live.</span></div>
+        <div class="phrase-bar-track"><div id="bar-47" class="phrase-bar-fill"></div></div>
+      </div>
+      <div id="sub-p-48" class="sub-card">
+        <div class="sub-text"><span id="kw-180" class="karaoke-word">Your</span> <span id="kw-181" class="karaoke-word">second</span> <span id="kw-182" class="karaoke-word">visit</span> <span id="kw-183" class="karaoke-word">skips</span> <span id="kw-184" class="karaoke-word">the</span></div>
+        <div class="phrase-bar-track"><div id="bar-48" class="phrase-bar-fill"></div></div>
+      </div>
+      <div id="sub-p-49" class="sub-card">
+        <div class="sub-text"><span id="kw-185" class="karaoke-word">trip,</span></div>
+        <div class="phrase-bar-track"><div id="bar-49" class="phrase-bar-fill"></div></div>
+      </div>
+      <div id="sub-p-50" class="sub-card">
+        <div class="sub-text"><span id="kw-186" class="karaoke-word">loading</span> <span id="kw-187" class="karaoke-word">in</span> <span id="kw-188" class="karaoke-word">8</span> <span id="kw-189" class="karaoke-word">milliseconds</span> <span id="kw-190" class="karaoke-word">instead</span></div>
+        <div class="phrase-bar-track"><div id="bar-50" class="phrase-bar-fill"></div></div>
+      </div>
+      <div id="sub-p-51" class="sub-card">
+        <div class="sub-text"><span id="kw-191" class="karaoke-word">of</span> <span id="kw-192" class="karaoke-word">100,</span> <span id="kw-193" class="karaoke-word">running</span> <span id="kw-194" class="karaoke-word">ends</span> <span id="kw-195" class="karaoke-word">look</span></div>
+        <div class="phrase-bar-track"><div id="bar-51" class="phrase-bar-fill"></div></div>
+      </div>
+      <div id="sub-p-52" class="sub-card">
+        <div class="sub-text"><span id="kw-196" class="karaoke-word">up</span> <span id="kw-197" class="karaoke-word">in</span> <span id="kw-198" class="karaoke-word">your</span> <span id="kw-199" class="karaoke-word">terminal</span> <span id="kw-200" class="karaoke-word">proves</span></div>
+        <div class="phrase-bar-track"><div id="bar-52" class="phrase-bar-fill"></div></div>
+      </div>
+      <div id="sub-p-53" class="sub-card">
+        <div class="sub-text"><span id="kw-201" class="karaoke-word">this</span> <span id="kw-202" class="karaoke-word">translation</span> <span id="kw-203" class="karaoke-word">in</span> <span id="kw-204" class="karaoke-word">real</span> <span id="kw-205" class="karaoke-word">time.</span></div>
+        <div class="phrase-bar-track"><div id="bar-53" class="phrase-bar-fill"></div></div>
+      </div>
+      <div id="sub-p-54" class="sub-card">
+        <div class="sub-text"><span id="kw-206" class="karaoke-word">When</span> <span id="kw-207" class="karaoke-word">you</span> <span id="kw-208" class="karaoke-word">see</span> <span id="kw-209" class="karaoke-word">DNS</span> <span id="kw-210" class="karaoke-word">probe</span></div>
+        <div class="phrase-bar-track"><div id="bar-54" class="phrase-bar-fill"></div></div>
+      </div>
+      <div id="sub-p-55" class="sub-card">
+        <div class="sub-text"><span id="kw-211" class="karaoke-word">finished,</span></div>
+        <div class="phrase-bar-track"><div id="bar-55" class="phrase-bar-fill"></div></div>
+      </div>
+      <div id="sub-p-56" class="sub-card">
+        <div class="sub-text"><span id="kw-212" class="karaoke-word">your</span> <span id="kw-213" class="karaoke-word">computer</span> <span id="kw-214" class="karaoke-word">lost</span> <span id="kw-215" class="karaoke-word">touch</span> <span id="kw-216" class="karaoke-word">with</span></div>
+        <div class="phrase-bar-track"><div id="bar-56" class="phrase-bar-fill"></div></div>
+      </div>
+      <div id="sub-p-57" class="sub-card">
+        <div class="sub-text"><span id="kw-217" class="karaoke-word">the</span> <span id="kw-218" class="karaoke-word">librarian.</span></div>
+        <div class="phrase-bar-track"><div id="bar-57" class="phrase-bar-fill"></div></div>
+      </div>
+      <div id="sub-p-58" class="sub-card">
+        <div class="sub-text"><span id="kw-219" class="karaoke-word">IP</span> <span id="kw-220" class="karaoke-word">is</span> <span id="kw-221" class="karaoke-word">the</span> <span id="kw-222" class="karaoke-word">address.</span></div>
+        <div class="phrase-bar-track"><div id="bar-58" class="phrase-bar-fill"></div></div>
+      </div>
+      <div id="sub-p-59" class="sub-card">
+        <div class="sub-text"><span id="kw-223" class="karaoke-word">DNS</span> <span id="kw-224" class="karaoke-word">is</span> <span id="kw-225" class="karaoke-word">the</span> <span id="kw-226" class="karaoke-word">phone</span> <span id="kw-227" class="karaoke-word">book.</span></div>
+        <div class="phrase-bar-track"><div id="bar-59" class="phrase-bar-fill"></div></div>
+      </div>
+      <div id="sub-p-60" class="sub-card">
+        <div class="sub-text"><span id="kw-228" class="karaoke-word">Caching</span> <span id="kw-229" class="karaoke-word">makes</span> <span id="kw-230" class="karaoke-word">it</span> <span id="kw-231" class="karaoke-word">instant.</span></div>
+        <div class="phrase-bar-track"><div id="bar-60" class="phrase-bar-fill"></div></div>
+      </div>
+      <div id="sub-p-61" class="sub-card">
+        <div class="sub-text"><span id="kw-232" class="karaoke-word">Follow</span> <span id="kw-233" class="karaoke-word">code</span> <span id="kw-234" class="karaoke-word">explains</span> <span id="kw-235" class="karaoke-word">to</span> <span id="kw-236" class="karaoke-word">master</span></div>
+        <div class="phrase-bar-track"><div id="bar-61" class="phrase-bar-fill"></div></div>
+      </div>
+      <div id="sub-p-62" class="sub-card">
+        <div class="sub-text"><span id="kw-237" class="karaoke-word">how</span> <span id="kw-238" class="karaoke-word">the</span> <span id="kw-239" class="karaoke-word">internet</span> <span id="kw-240" class="karaoke-word">really</span> <span id="kw-241" class="karaoke-word">works.</span></div>
+        <div class="phrase-bar-track"><div id="bar-62" class="phrase-bar-fill"></div></div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    window.__timelines = window.__timelines || {};
+    const tl = gsap.timeline({ paused: true });
+
+    // ================= 22 MICRO-SCENE GSAP CHOREOGRAPHIES =================
+
+    // Clip 1: 0.0s - 4.0s (Browser URL)
+    tl.to("#clip1", { opacity: 1, duration: 0.25 }, 0.0);
+    tl.from("#s1-browser", { scale: 0.8, opacity: 0, duration: 0.6, ease: "back.out(1.4)" }, 0.2);
+    tl.to("#clip1", { opacity: 0, duration: 0.25 }, 3.8);
+
+    // Clip 2: 4.0s - 6.3s (Globe)
+    tl.to("#clip2", { opacity: 1, duration: 0.25 }, 4.0);
+    tl.from("#s2-globe", { scale: 0.7, opacity: 0, duration: 0.5, ease: "power3.out" }, 4.1);
+    tl.to("#clip2", { opacity: 0, duration: 0.25 }, 6.1);
+
+    // Clip 3: 6.3s - 10.9s (House)
+    tl.to("#clip3", { opacity: 1, duration: 0.25 }, 6.3);
+    tl.from("#s3-house", { scale: 0.8, rotationY: -35, opacity: 0, duration: 0.7, ease: "power3.out" }, 6.5);
+    tl.to("#clip3", { opacity: 0, duration: 0.25 }, 10.6);
+
+    // Clip 4: 10.9s - 14.0s (Mailbox)
+    tl.to("#clip4", { opacity: 1, duration: 0.25 }, 10.9);
+    tl.from(".data-letter", { y: -80, opacity: 0, duration: 0.5, ease: "power2.in" }, 11.2);
+    tl.to("#clip4", { opacity: 0, duration: 0.25 }, 13.8);
+
+    // Clip 5: 14.0s - 19.9s (IPv4 Octets)
+    tl.to("#clip5", { opacity: 1, duration: 0.25 }, 14.0);
+    tl.from(".octet-card", { scale: 0, opacity: 0, stagger: 0.15, duration: 0.5, ease: "back.out(1.5)" }, 14.3);
+    tl.to("#clip5", { opacity: 0, duration: 0.25 }, 19.6);
+
+    // Clip 6: 19.9s - 24.5s (Pool Limit)
+    tl.to("#clip6", { opacity: 1, duration: 0.25 }, 19.9);
+    tl.from("#s6-pool", { scale: 0.8, opacity: 0, duration: 0.6, ease: "power3.out" }, 20.1);
+    tl.from(".caution-tape", { scale: 1.4, opacity: 0, duration: 0.4, ease: "elastic.out(1, 0.5)" }, 21.5);
+    tl.to("#clip6", { opacity: 0, duration: 0.25 }, 24.2);
+
+    // Clip 7: 24.5s - 29.5s (IPv6)
+    tl.to("#clip7", { opacity: 1, duration: 0.25 }, 24.5);
+    tl.from("#s7-v6", { scale: 0.85, opacity: 0, duration: 0.6, ease: "power3.out" }, 24.7);
+    tl.to("#clip7", { opacity: 0, duration: 0.25 }, 29.2);
+
+    // Clip 8: 29.5s - 35.5s (Router NAT)
+    tl.to("#clip8", { opacity: 1, duration: 0.25 }, 29.5);
+    tl.from("#s8-router", { y: 40, opacity: 0, duration: 0.6, ease: "power3.out" }, 29.7);
+    tl.to("#clip8", { opacity: 0, duration: 0.25 }, 35.2);
+
+    // Clip 9: 35.5s - 40.3s (Names vs Numbers)
+    tl.to("#clip9", { opacity: 1, duration: 0.25 }, 35.5);
+    tl.to("#clip9", { opacity: 0, duration: 0.25 }, 40.0);
+
+    // Clip 10: 40.3s - 45.2s (Phone Contacts)
+    tl.to("#clip10", { opacity: 1, duration: 0.25 }, 40.3);
+    tl.from("#s10-phone", { scale: 0.8, opacity: 0, duration: 0.6, ease: "back.out(1.4)" }, 40.5);
+    tl.to("#clip10", { opacity: 0, duration: 0.25 }, 44.9);
+
+    // Clip 11: 45.2s - 49.3s (DNS Book)
+    tl.to("#clip11", { opacity: 1, duration: 0.25 }, 45.2);
+    tl.from("#s11-book", { rotationY: 45, opacity: 0, duration: 0.6, ease: "power3.out" }, 45.4);
+    tl.to("#clip11", { opacity: 0, duration: 0.25 }, 49.0);
+
+    // Clip 12: 49.3s - 52.8s (Cache Check)
+    tl.to("#clip12", { opacity: 1, duration: 0.25 }, 49.3);
+    tl.to("#clip12", { opacity: 0, duration: 0.25 }, 52.5);
+
+    // Clip 13: 52.8s - 58.6s (Librarian)
+    tl.to("#clip13", { opacity: 1, duration: 0.25 }, 52.8);
+    tl.from("#s13-librarian", { scale: 0.8, opacity: 0, duration: 0.6, ease: "back.out(1.5)" }, 53.0);
+    tl.to("#clip13", { opacity: 0, duration: 0.25 }, 58.3);
+
+    // Clip 14: 58.6s - 63.6s (Root)
+    tl.to("#clip14", { opacity: 1, duration: 0.25 }, 58.6);
+    tl.to("#clip14", { opacity: 0, duration: 0.25 }, 63.3);
+
+    // Clip 15: 63.6s - 68.6s (TLD)
+    tl.to("#clip15", { opacity: 1, duration: 0.25 }, 63.6);
+    tl.to("#clip15", { opacity: 0, duration: 0.25 }, 68.3);
+
+    // Clip 16: 68.6s - 76.4s (Authoritative)
+    tl.to("#clip16", { opacity: 1, duration: 0.25 }, 68.6);
+    tl.to("#clip16", { opacity: 0, duration: 0.25 }, 76.1);
+
+    // Clip 17: 76.4s - 82.1s (TTL Sticky Note)
+    tl.to("#clip17", { opacity: 1, duration: 0.25 }, 76.4);
+    tl.from("#s17-ttl", { scale: 0, opacity: 0, duration: 0.5, ease: "back.out(1.7)" }, 76.6);
+    tl.to("#clip17", { opacity: 0, duration: 0.25 }, 81.8);
+
+    // Clip 18: 82.1s - 87.5s (Speedup)
+    tl.to("#clip18", { opacity: 1, duration: 0.25 }, 82.1);
+    tl.from("#s18-speed", { scale: 0.9, opacity: 0, duration: 0.5, ease: "power3.out" }, 82.3);
+    tl.to("#clip18", { opacity: 0, duration: 0.25 }, 87.2);
+
+    // Clip 19: 87.5s - 92.8s (Terminal)
+    tl.to("#clip19", { opacity: 1, duration: 0.25 }, 87.5);
+    tl.from("#s19-term", { scale: 0.9, opacity: 0, duration: 0.6, ease: "power4.out" }, 87.7);
+    tl.to("#clip19", { opacity: 0, duration: 0.25 }, 92.5);
+
+    // Clip 20: 92.8s - 97.9s (DNS Error)
+    tl.to("#clip20", { opacity: 1, duration: 0.25 }, 92.8);
+    tl.from("#s20-error", { scale: 0.8, opacity: 0, duration: 0.5, ease: "elastic.out(1, 0.6)" }, 93.0);
+    tl.to("#clip20", { opacity: 0, duration: 0.25 }, 97.6);
+
+    // Clip 21: 97.9s - 103.8s (3-Beat Recap)
+    tl.to("#clip21", { opacity: 1, duration: 0.25 }, 97.9);
+    tl.from(".recap-card-item", { x: -60, opacity: 0, stagger: 0.15, duration: 0.5, ease: "power3.out" }, 98.1);
+    tl.to("#clip21", { opacity: 0, duration: 0.25 }, 103.5);
+
+    // Clip 22: 103.8s - 108.3s (CTA)
+    tl.to("#clip22", { opacity: 1, duration: 0.25 }, 103.8);
+    tl.from(".cta-banner-huge", { scale: 0, opacity: 0, duration: 0.6, ease: "back.out(1.7)" }, 104.0);
+
+    // ================= DYNAMIC KARAOKE SUBTITLE TIMELINE =================
+    tl.to("#kw-0", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 0.0);
+    tl.to("#kw-0", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 0.1);
+    tl.to("#kw-1", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 0.08);
+    tl.to("#kw-1", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 0.34);
+    tl.to("#kw-2", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 0.34);
+    tl.to("#kw-2", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 0.62);
+    tl.to("#kw-3", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 0.62);
+    tl.to("#kw-3", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 1.38);
+    tl.to("#kw-4", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 1.38);
+    tl.to("#kw-4", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 2.12);
+    tl.to("#sub-p-0", { opacity: 1, y: 0, duration: 0.15, ease: "power2.out" }, 0);
+    tl.fromTo("#bar-0", { width: "0%" }, { width: "100%", duration: 2.12, ease: "none" }, 0.0);
+    tl.to("#sub-p-0", { opacity: 0, y: -10, duration: 0.15, ease: "power2.in" }, 2.22);
+    tl.to("#kw-5", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 2.12);
+    tl.to("#kw-5", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 2.22);
+    tl.to("#kw-6", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 2.22);
+    tl.to("#kw-6", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 2.52);
+    tl.to("#kw-7", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 2.52);
+    tl.to("#kw-7", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 2.94);
+    tl.to("#kw-8", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 2.94);
+    tl.to("#kw-8", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 3.6);
+    tl.to("#sub-p-1", { opacity: 1, y: 0, duration: 0.15, ease: "power2.out" }, 2.0700000000000003);
+    tl.fromTo("#bar-1", { width: "0%" }, { width: "100%", duration: 1.48, ease: "none" }, 2.12);
+    tl.to("#sub-p-1", { opacity: 0, y: -10, duration: 0.15, ease: "power2.in" }, 3.7);
+    tl.to("#kw-9", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 4.28);
+    tl.to("#kw-9", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 4.38);
+    tl.to("#kw-10", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 4.36);
+    tl.to("#kw-10", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 4.48);
+    tl.to("#kw-11", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 4.48);
+    tl.to("#kw-11", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 4.62);
+    tl.to("#kw-12", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 4.62);
+    tl.to("#kw-12", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 4.96);
+    tl.to("#kw-13", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 4.96);
+    tl.to("#kw-13", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 5.3);
+    tl.to("#sub-p-2", { opacity: 1, y: 0, duration: 0.15, ease: "power2.out" }, 4.23);
+    tl.fromTo("#bar-2", { width: "0%" }, { width: "100%", duration: 1.02, ease: "none" }, 4.28);
+    tl.to("#sub-p-2", { opacity: 0, y: -10, duration: 0.15, ease: "power2.in" }, 5.3999999999999995);
+    tl.to("#kw-14", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 5.3);
+    tl.to("#kw-14", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 5.54);
+    tl.to("#kw-15", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 5.54);
+    tl.to("#kw-15", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 5.66);
+    tl.to("#kw-16", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 5.66);
+    tl.to("#kw-16", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 5.86);
+    tl.to("#sub-p-3", { opacity: 1, y: 0, duration: 0.15, ease: "power2.out" }, 5.25);
+    tl.fromTo("#bar-3", { width: "0%" }, { width: "100%", duration: 0.56, ease: "none" }, 5.3);
+    tl.to("#sub-p-3", { opacity: 0, y: -10, duration: 0.15, ease: "power2.in" }, 5.96);
+    tl.to("#kw-17", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 6.34);
+    tl.to("#kw-17", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 6.56);
+    tl.to("#kw-18", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 6.56);
+    tl.to("#kw-18", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 6.94);
+    tl.to("#kw-19", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 6.94);
+    tl.to("#kw-19", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 7.28);
+    tl.to("#kw-20", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 7.28);
+    tl.to("#kw-20", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 7.54);
+    tl.to("#kw-21", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 7.54);
+    tl.to("#kw-21", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 7.9);
+    tl.to("#sub-p-4", { opacity: 1, y: 0, duration: 0.15, ease: "power2.out" }, 6.29);
+    tl.fromTo("#bar-4", { width: "0%" }, { width: "100%", duration: 1.56, ease: "none" }, 6.34);
+    tl.to("#sub-p-4", { opacity: 0, y: -10, duration: 0.15, ease: "power2.in" }, 8.0);
+    tl.to("#kw-22", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 7.9);
+    tl.to("#kw-22", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 8.02);
+    tl.to("#kw-23", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 8.02);
+    tl.to("#kw-23", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 8.28);
+    tl.to("#sub-p-5", { opacity: 1, y: 0, duration: 0.15, ease: "power2.out" }, 7.8500000000000005);
+    tl.fromTo("#bar-5", { width: "0%" }, { width: "100%", duration: 0.38, ease: "none" }, 7.9);
+    tl.to("#sub-p-5", { opacity: 0, y: -10, duration: 0.15, ease: "power2.in" }, 8.379999999999999);
+    tl.to("#kw-24", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 8.88);
+    tl.to("#kw-24", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 9.08);
+    tl.to("#kw-25", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 9.08);
+    tl.to("#kw-25", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 9.28);
+    tl.to("#kw-26", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 9.28);
+    tl.to("#kw-26", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 9.54);
+    tl.to("#kw-27", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 9.54);
+    tl.to("#kw-27", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 9.94);
+    tl.to("#kw-28", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 9.94);
+    tl.to("#kw-28", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 10.42);
+    tl.to("#sub-p-6", { opacity: 1, y: 0, duration: 0.15, ease: "power2.out" }, 8.83);
+    tl.fromTo("#bar-6", { width: "0%" }, { width: "100%", duration: 1.54, ease: "none" }, 8.88);
+    tl.to("#sub-p-6", { opacity: 0, y: -10, duration: 0.15, ease: "power2.in" }, 10.52);
+    tl.to("#kw-29", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 10.98);
+    tl.to("#kw-29", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 11.08);
+    tl.to("#kw-30", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 11.04);
+    tl.to("#kw-30", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 11.22);
+    tl.to("#kw-31", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 11.22);
+    tl.to("#kw-31", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 11.56);
+    tl.to("#kw-32", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 11.56);
+    tl.to("#kw-32", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 11.74);
+    tl.to("#kw-33", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 11.74);
+    tl.to("#kw-33", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 11.96);
+    tl.to("#sub-p-7", { opacity: 1, y: 0, duration: 0.15, ease: "power2.out" }, 10.93);
+    tl.fromTo("#bar-7", { width: "0%" }, { width: "100%", duration: 0.98, ease: "none" }, 10.98);
+    tl.to("#sub-p-7", { opacity: 0, y: -10, duration: 0.15, ease: "power2.in" }, 12.06);
+    tl.to("#kw-34", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 11.96);
+    tl.to("#kw-34", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 12.28);
+    tl.to("#kw-35", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 12.28);
+    tl.to("#kw-35", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 12.62);
+    tl.to("#kw-36", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 12.62);
+    tl.to("#kw-36", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 12.82);
+    tl.to("#kw-37", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 12.82);
+    tl.to("#kw-37", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 13.06);
+    tl.to("#kw-38", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 13.06);
+    tl.to("#kw-38", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 13.32);
+    tl.to("#sub-p-8", { opacity: 1, y: 0, duration: 0.15, ease: "power2.out" }, 11.91);
+    tl.fromTo("#bar-8", { width: "0%" }, { width: "100%", duration: 1.36, ease: "none" }, 11.96);
+    tl.to("#sub-p-8", { opacity: 0, y: -10, duration: 0.15, ease: "power2.in" }, 13.42);
+    tl.to("#kw-39", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 14.12);
+    tl.to("#kw-39", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 14.6);
+    tl.to("#kw-40", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 14.6);
+    tl.to("#kw-40", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 14.78);
+    tl.to("#kw-41", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 14.78);
+    tl.to("#kw-41", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 15.1);
+    tl.to("#kw-42", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 15.1);
+    tl.to("#kw-42", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 15.44);
+    tl.to("#sub-p-9", { opacity: 1, y: 0, duration: 0.15, ease: "power2.out" }, 14.069999999999999);
+    tl.fromTo("#bar-9", { width: "0%" }, { width: "100%", duration: 1.32, ease: "none" }, 14.12);
+    tl.to("#sub-p-9", { opacity: 0, y: -10, duration: 0.15, ease: "power2.in" }, 15.54);
+    tl.to("#kw-43", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 16.0);
+    tl.to("#kw-43", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 16.14);
+    tl.to("#kw-44", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 16.14);
+    tl.to("#kw-44", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 16.58);
+    tl.to("#kw-45", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 16.58);
+    tl.to("#kw-45", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 17.88);
+    tl.to("#kw-46", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 17.88);
+    tl.to("#kw-46", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 18.94);
+    tl.to("#kw-47", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 18.94);
+    tl.to("#kw-47", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 19.6);
+    tl.to("#sub-p-10", { opacity: 1, y: 0, duration: 0.15, ease: "power2.out" }, 15.95);
+    tl.fromTo("#bar-10", { width: "0%" }, { width: "100%", duration: 3.60, ease: "none" }, 16.0);
+    tl.to("#sub-p-10", { opacity: 0, y: -10, duration: 0.15, ease: "power2.in" }, 19.700000000000003);
+    tl.to("#kw-48", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 19.84);
+    tl.to("#kw-48", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 20.08);
+    tl.to("#kw-49", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 20.08);
+    tl.to("#kw-49", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 20.44);
+    tl.to("#kw-50", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 20.44);
+    tl.to("#kw-50", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 20.94);
+    tl.to("#kw-51", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 20.94);
+    tl.to("#kw-51", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 21.58);
+    tl.to("#sub-p-11", { opacity: 1, y: 0, duration: 0.15, ease: "power2.out" }, 19.79);
+    tl.fromTo("#bar-11", { width: "0%" }, { width: "100%", duration: 1.74, ease: "none" }, 19.84);
+    tl.to("#sub-p-11", { opacity: 0, y: -10, duration: 0.15, ease: "power2.in" }, 21.68);
+    tl.to("#kw-52", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 22.12);
+    tl.to("#kw-52", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 22.38);
+    tl.to("#kw-53", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 22.38);
+    tl.to("#kw-53", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 22.54);
+    tl.to("#kw-54", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 22.54);
+    tl.to("#kw-54", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 23.02);
+    tl.to("#kw-55", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 23.02);
+    tl.to("#kw-55", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 23.5);
+    tl.to("#kw-56", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 23.5);
+    tl.to("#kw-56", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 23.92);
+    tl.to("#sub-p-12", { opacity: 1, y: 0, duration: 0.15, ease: "power2.out" }, 22.07);
+    tl.fromTo("#bar-12", { width: "0%" }, { width: "100%", duration: 1.80, ease: "none" }, 22.12);
+    tl.to("#sub-p-12", { opacity: 0, y: -10, duration: 0.15, ease: "power2.in" }, 24.020000000000003);
+    tl.to("#kw-57", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 24.68);
+    tl.to("#kw-57", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 24.78);
+    tl.to("#kw-58", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 24.7);
+    tl.to("#kw-58", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 24.9);
+    tl.to("#kw-59", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 24.9);
+    tl.to("#kw-59", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 25.16);
+    tl.to("#kw-60", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 25.16);
+    tl.to("#kw-60", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 25.26);
+    tl.to("#kw-61", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 25.26);
+    tl.to("#kw-61", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 25.54);
+    tl.to("#sub-p-13", { opacity: 1, y: 0, duration: 0.15, ease: "power2.out" }, 24.63);
+    tl.fromTo("#bar-13", { width: "0%" }, { width: "100%", duration: 0.86, ease: "none" }, 24.68);
+    tl.to("#sub-p-13", { opacity: 0, y: -10, duration: 0.15, ease: "power2.in" }, 25.64);
+    tl.to("#kw-62", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 26.34);
+    tl.to("#kw-62", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 26.44);
+    tl.to("#kw-63", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 26.42);
+    tl.to("#kw-63", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 26.98);
+    tl.to("#kw-64", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 26.98);
+    tl.to("#kw-64", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 27.46);
+    tl.to("#kw-65", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 27.46);
+    tl.to("#kw-65", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 27.86);
+    tl.to("#kw-66", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 27.86);
+    tl.to("#kw-66", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 28.48);
+    tl.to("#sub-p-14", { opacity: 1, y: 0, duration: 0.15, ease: "power2.out" }, 26.29);
+    tl.fromTo("#bar-14", { width: "0%" }, { width: "100%", duration: 2.14, ease: "none" }, 26.34);
+    tl.to("#sub-p-14", { opacity: 0, y: -10, duration: 0.15, ease: "power2.in" }, 28.580000000000002);
+    tl.to("#kw-67", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 28.48);
+    tl.to("#kw-67", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 28.92);
+    tl.to("#sub-p-15", { opacity: 1, y: 0, duration: 0.15, ease: "power2.out" }, 28.43);
+    tl.fromTo("#bar-15", { width: "0%" }, { width: "100%", duration: 0.44, ease: "none" }, 28.48);
+    tl.to("#sub-p-15", { opacity: 0, y: -10, duration: 0.15, ease: "power2.in" }, 29.020000000000003);
+    tl.to("#kw-68", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 29.32);
+    tl.to("#kw-68", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 29.66);
+    tl.to("#kw-69", { color: "#FF6B4A", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #FF6B4A", duration: 0.08, overwrite: "auto" }, 29.66);
+    tl.to("#kw-69", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 29.94);
+    tl.to("#kw-70", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 29.94);
+    tl.to("#kw-70", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 30.32);
+    tl.to("#kw-71", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 30.32);
+    tl.to("#kw-71", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 30.62);
+    tl.to("#kw-72", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 30.62);
+    tl.to("#kw-72", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 30.96);
+    tl.to("#sub-p-16", { opacity: 1, y: 0, duration: 0.15, ease: "power2.out" }, 29.27);
+    tl.fromTo("#bar-16", { width: "0%" }, { width: "100%", duration: 1.64, ease: "none" }, 29.32);
+    tl.to("#sub-p-16", { opacity: 0, y: -10, duration: 0.15, ease: "power2.in" }, 31.060000000000002);
+    tl.to("#kw-73", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 30.96);
+    tl.to("#kw-73", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 31.38);
+    tl.to("#kw-74", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 31.38);
+    tl.to("#kw-74", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 31.82);
+    tl.to("#kw-75", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 31.82);
+    tl.to("#kw-75", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 32.6);
+    tl.to("#sub-p-17", { opacity: 1, y: 0, duration: 0.15, ease: "power2.out" }, 30.91);
+    tl.fromTo("#bar-17", { width: "0%" }, { width: "100%", duration: 1.64, ease: "none" }, 30.96);
+    tl.to("#sub-p-17", { opacity: 0, y: -10, duration: 0.15, ease: "power2.in" }, 32.7);
+    tl.to("#kw-76", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 33.26);
+    tl.to("#kw-76", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 33.36);
+    tl.to("#kw-77", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 33.28);
+    tl.to("#kw-77", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 33.56);
+    tl.to("#kw-78", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 33.56);
+    tl.to("#kw-78", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 33.98);
+    tl.to("#kw-79", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 33.98);
+    tl.to("#kw-79", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 34.4);
+    tl.to("#kw-80", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 34.4);
+    tl.to("#kw-80", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 34.74);
+    tl.to("#sub-p-18", { opacity: 1, y: 0, duration: 0.15, ease: "power2.out" }, 33.21);
+    tl.fromTo("#bar-18", { width: "0%" }, { width: "100%", duration: 1.48, ease: "none" }, 33.26);
+    tl.to("#sub-p-18", { opacity: 0, y: -10, duration: 0.15, ease: "power2.in" }, 34.84);
+    tl.to("#kw-81", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 35.6);
+    tl.to("#kw-81", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 36.12);
+    tl.to("#kw-82", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 36.12);
+    tl.to("#kw-82", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 36.26);
+    tl.to("#kw-83", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 36.26);
+    tl.to("#kw-83", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 36.62);
+    tl.to("#sub-p-19", { opacity: 1, y: 0, duration: 0.15, ease: "power2.out" }, 35.550000000000004);
+    tl.fromTo("#bar-19", { width: "0%" }, { width: "100%", duration: 1.02, ease: "none" }, 35.6);
+    tl.to("#sub-p-19", { opacity: 0, y: -10, duration: 0.15, ease: "power2.in" }, 36.72);
+    tl.to("#kw-84", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 37.22);
+    tl.to("#kw-84", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 37.46);
+    tl.to("#kw-85", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 37.46);
+    tl.to("#kw-85", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 37.68);
+    tl.to("#kw-86", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 37.68);
+    tl.to("#kw-86", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 38.14);
+    tl.to("#kw-87", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 38.14);
+    tl.to("#kw-87", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 39.04);
+    tl.to("#kw-88", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 39.04);
+    tl.to("#kw-88", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 39.42);
+    tl.to("#sub-p-20", { opacity: 1, y: 0, duration: 0.15, ease: "power2.out" }, 37.17);
+    tl.fromTo("#bar-20", { width: "0%" }, { width: "100%", duration: 2.20, ease: "none" }, 37.22);
+    tl.to("#sub-p-20", { opacity: 0, y: -10, duration: 0.15, ease: "power2.in" }, 39.52);
+    tl.to("#kw-89", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 39.42);
+    tl.to("#kw-89", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 39.76);
+    tl.to("#sub-p-21", { opacity: 1, y: 0, duration: 0.15, ease: "power2.out" }, 39.370000000000005);
+    tl.fromTo("#bar-21", { width: "0%" }, { width: "100%", duration: 0.34, ease: "none" }, 39.42);
+    tl.to("#sub-p-21", { opacity: 0, y: -10, duration: 0.15, ease: "power2.in" }, 39.86);
+    tl.to("#kw-90", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 40.48);
+    tl.to("#kw-90", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 40.58);
+    tl.to("#kw-91", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 40.5);
+    tl.to("#kw-91", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 40.64);
+    tl.to("#kw-92", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 40.64);
+    tl.to("#kw-92", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 40.84);
+    tl.to("#kw-93", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 40.84);
+    tl.to("#kw-93", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 41.5);
+    tl.to("#kw-94", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 41.5);
+    tl.to("#kw-94", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 41.72);
+    tl.to("#sub-p-22", { opacity: 1, y: 0, duration: 0.15, ease: "power2.out" }, 40.43);
+    tl.fromTo("#bar-22", { width: "0%" }, { width: "100%", duration: 1.24, ease: "none" }, 40.48);
+    tl.to("#sub-p-22", { opacity: 0, y: -10, duration: 0.15, ease: "power2.in" }, 41.82);
+    tl.to("#kw-95", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 41.72);
+    tl.to("#kw-95", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 42.06);
+    tl.to("#sub-p-23", { opacity: 1, y: 0, duration: 0.15, ease: "power2.out" }, 41.67);
+    tl.fromTo("#bar-23", { width: "0%" }, { width: "100%", duration: 0.34, ease: "none" }, 41.72);
+    tl.to("#sub-p-23", { opacity: 0, y: -10, duration: 0.15, ease: "power2.in" }, 42.160000000000004);
+    tl.to("#kw-96", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 42.92);
+    tl.to("#kw-96", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 43.02);
+    tl.to("#kw-97", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 42.96);
+    tl.to("#kw-97", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 43.2);
+    tl.to("#kw-98", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 43.2);
+    tl.to("#kw-98", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 43.42);
+    tl.to("#kw-99", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 43.42);
+    tl.to("#kw-99", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 43.84);
+    tl.to("#kw-100", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 43.84);
+    tl.to("#kw-100", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 43.940000000000005);
+    tl.to("#sub-p-24", { opacity: 1, y: 0, duration: 0.15, ease: "power2.out" }, 42.870000000000005);
+    tl.fromTo("#bar-24", { width: "0%" }, { width: "100%", duration: 1.02, ease: "none" }, 42.92);
+    tl.to("#sub-p-24", { opacity: 0, y: -10, duration: 0.15, ease: "power2.in" }, 44.04);
+    tl.to("#kw-101", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 43.94);
+    tl.to("#kw-101", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 44.38);
+    tl.to("#kw-102", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 44.38);
+    tl.to("#kw-102", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 44.88);
+    tl.to("#sub-p-25", { opacity: 1, y: 0, duration: 0.15, ease: "power2.out" }, 43.89);
+    tl.fromTo("#bar-25", { width: "0%" }, { width: "100%", duration: 0.94, ease: "none" }, 43.94);
+    tl.to("#sub-p-25", { opacity: 0, y: -10, duration: 0.15, ease: "power2.in" }, 44.980000000000004);
+    tl.to("#kw-103", { color: "#FF6B4A", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #FF6B4A", duration: 0.08, overwrite: "auto" }, 45.3);
+    tl.to("#kw-103", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 45.54);
+    tl.to("#kw-104", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 45.54);
+    tl.to("#kw-104", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 46.4);
+    tl.to("#kw-105", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 46.4);
+    tl.to("#kw-105", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 46.56);
+    tl.to("#kw-106", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 46.56);
+    tl.to("#kw-106", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 46.96);
+    tl.to("#kw-107", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 46.96);
+    tl.to("#kw-107", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 47.46);
+    tl.to("#sub-p-26", { opacity: 1, y: 0, duration: 0.15, ease: "power2.out" }, 45.25);
+    tl.fromTo("#bar-26", { width: "0%" }, { width: "100%", duration: 2.16, ease: "none" }, 45.3);
+    tl.to("#sub-p-26", { opacity: 0, y: -10, duration: 0.15, ease: "power2.in" }, 47.56);
+    tl.to("#kw-108", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 47.46);
+    tl.to("#kw-108", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 47.76);
+    tl.to("#kw-109", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 47.76);
+    tl.to("#kw-109", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 47.9);
+    tl.to("#kw-110", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 47.9);
+    tl.to("#kw-110", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 48.18);
+    tl.to("#kw-111", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 48.18);
+    tl.to("#kw-111", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 48.84);
+    tl.to("#sub-p-27", { opacity: 1, y: 0, duration: 0.15, ease: "power2.out" }, 47.410000000000004);
+    tl.fromTo("#bar-27", { width: "0%" }, { width: "100%", duration: 1.38, ease: "none" }, 47.46);
+    tl.to("#sub-p-27", { opacity: 0, y: -10, duration: 0.15, ease: "power2.in" }, 48.940000000000005);
+    tl.to("#kw-112", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 49.4);
+    tl.to("#kw-112", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 49.6);
+    tl.to("#sub-p-28", { opacity: 1, y: 0, duration: 0.15, ease: "power2.out" }, 49.35);
+    tl.fromTo("#bar-28", { width: "0%" }, { width: "100%", duration: 0.20, ease: "none" }, 49.4);
+    tl.to("#sub-p-28", { opacity: 0, y: -10, duration: 0.15, ease: "power2.in" }, 49.7);
+    tl.to("#kw-113", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 50.16);
+    tl.to("#kw-113", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 50.36);
+    tl.to("#kw-114", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 50.36);
+    tl.to("#kw-114", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 50.72);
+    tl.to("#kw-115", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 50.72);
+    tl.to("#kw-115", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 51.08);
+    tl.to("#kw-116", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 51.08);
+    tl.to("#kw-116", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 51.32);
+    tl.to("#kw-117", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 51.32);
+    tl.to("#kw-117", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 51.6);
+    tl.to("#sub-p-29", { opacity: 1, y: 0, duration: 0.15, ease: "power2.out" }, 50.11);
+    tl.fromTo("#bar-29", { width: "0%" }, { width: "100%", duration: 1.44, ease: "none" }, 50.16);
+    tl.to("#sub-p-29", { opacity: 0, y: -10, duration: 0.15, ease: "power2.in" }, 51.7);
+    tl.to("#kw-118", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 51.6);
+    tl.to("#kw-118", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 51.9);
+    tl.to("#kw-119", { color: "#FF6B4A", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #FF6B4A", duration: 0.08, overwrite: "auto" }, 51.9);
+    tl.to("#kw-119", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 52.26);
+    tl.to("#sub-p-30", { opacity: 1, y: 0, duration: 0.15, ease: "power2.out" }, 51.550000000000004);
+    tl.fromTo("#bar-30", { width: "0%" }, { width: "100%", duration: 0.66, ease: "none" }, 51.6);
+    tl.to("#sub-p-30", { opacity: 0, y: -10, duration: 0.15, ease: "power2.in" }, 52.36);
+    tl.to("#kw-120", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 52.92);
+    tl.to("#kw-120", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 53.02);
+    tl.to("#kw-121", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 53.02);
+    tl.to("#kw-121", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 53.26);
+    tl.to("#sub-p-31", { opacity: 1, y: 0, duration: 0.15, ease: "power2.out" }, 52.870000000000005);
+    tl.fromTo("#bar-31", { width: "0%" }, { width: "100%", duration: 0.34, ease: "none" }, 52.92);
+    tl.to("#sub-p-31", { opacity: 0, y: -10, duration: 0.15, ease: "power2.in" }, 53.36);
+    tl.to("#kw-122", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 53.84);
+    tl.to("#kw-122", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 53.940000000000005);
+    tl.to("#kw-123", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 53.92);
+    tl.to("#kw-123", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 54.22);
+    tl.to("#kw-124", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 54.22);
+    tl.to("#kw-124", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 54.52);
+    tl.to("#kw-125", { color: "#FF6B4A", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #FF6B4A", duration: 0.08, overwrite: "auto" }, 54.52);
+    tl.to("#kw-125", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 54.94);
+    tl.to("#sub-p-32", { opacity: 1, y: 0, duration: 0.15, ease: "power2.out" }, 53.790000000000006);
+    tl.fromTo("#bar-32", { width: "0%" }, { width: "100%", duration: 1.10, ease: "none" }, 53.84);
+    tl.to("#sub-p-32", { opacity: 0, y: -10, duration: 0.15, ease: "power2.in" }, 55.04);
+    tl.to("#kw-126", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 55.74);
+    tl.to("#kw-126", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 55.92);
+    tl.to("#kw-127", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 55.92);
+    tl.to("#kw-127", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 56.18);
+    tl.to("#kw-128", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 56.18);
+    tl.to("#kw-128", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 56.88);
+    tl.to("#kw-129", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 56.88);
+    tl.to("#kw-129", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 57.32);
+    tl.to("#kw-130", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 57.32);
+    tl.to("#kw-130", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 57.58);
+    tl.to("#sub-p-33", { opacity: 1, y: 0, duration: 0.15, ease: "power2.out" }, 55.690000000000005);
+    tl.fromTo("#bar-33", { width: "0%" }, { width: "100%", duration: 1.84, ease: "none" }, 55.74);
+    tl.to("#sub-p-33", { opacity: 0, y: -10, duration: 0.15, ease: "power2.in" }, 57.68);
+    tl.to("#kw-131", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 57.58);
+    tl.to("#kw-131", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 57.92);
+    tl.to("#kw-132", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 57.92);
+    tl.to("#kw-132", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 58.16);
+    tl.to("#kw-133", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 58.16);
+    tl.to("#kw-133", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 58.88);
+    tl.to("#kw-134", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 58.88);
+    tl.to("#kw-134", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 59.22);
+    tl.to("#sub-p-34", { opacity: 1, y: 0, duration: 0.15, ease: "power2.out" }, 57.53);
+    tl.fromTo("#bar-34", { width: "0%" }, { width: "100%", duration: 1.64, ease: "none" }, 57.58);
+    tl.to("#sub-p-34", { opacity: 0, y: -10, duration: 0.15, ease: "power2.in" }, 59.32);
+    tl.to("#kw-135", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 59.9);
+    tl.to("#kw-135", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 60.12);
+    tl.to("#kw-136", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 60.12);
+    tl.to("#kw-136", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 60.54);
+    tl.to("#kw-137", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 60.54);
+    tl.to("#kw-137", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 61.08);
+    tl.to("#kw-138", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 61.08);
+    tl.to("#kw-138", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 61.36);
+    tl.to("#kw-139", { color: "#FF6B4A", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #FF6B4A", duration: 0.08, overwrite: "auto" }, 61.36);
+    tl.to("#kw-139", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 61.52);
+    tl.to("#sub-p-35", { opacity: 1, y: 0, duration: 0.15, ease: "power2.out" }, 59.85);
+    tl.fromTo("#bar-35", { width: "0%" }, { width: "100%", duration: 1.62, ease: "none" }, 59.9);
+    tl.to("#sub-p-35", { opacity: 0, y: -10, duration: 0.15, ease: "power2.in" }, 61.620000000000005);
+    tl.to("#kw-140", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 61.52);
+    tl.to("#kw-140", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 61.84);
+    tl.to("#kw-141", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 61.84);
+    tl.to("#kw-141", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 62.18);
+    tl.to("#kw-142", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 62.18);
+    tl.to("#kw-142", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 62.74);
+    tl.to("#kw-143", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 62.74);
+    tl.to("#kw-143", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 63.04);
+    tl.to("#sub-p-36", { opacity: 1, y: 0, duration: 0.15, ease: "power2.out" }, 61.470000000000006);
+    tl.fromTo("#bar-36", { width: "0%" }, { width: "100%", duration: 1.52, ease: "none" }, 61.52);
+    tl.to("#sub-p-36", { opacity: 0, y: -10, duration: 0.15, ease: "power2.in" }, 63.14);
+    tl.to("#kw-144", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 63.78);
+    tl.to("#kw-144", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 63.92);
+    tl.to("#kw-145", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 63.92);
+    tl.to("#kw-145", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 64.26);
+    tl.to("#sub-p-37", { opacity: 1, y: 0, duration: 0.15, ease: "power2.out" }, 63.730000000000004);
+    tl.fromTo("#bar-37", { width: "0%" }, { width: "100%", duration: 0.48, ease: "none" }, 63.78);
+    tl.to("#sub-p-37", { opacity: 0, y: -10, duration: 0.15, ease: "power2.in" }, 64.36);
+    tl.to("#kw-146", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 65.08);
+    tl.to("#kw-146", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 65.2);
+    tl.to("#kw-147", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 65.2);
+    tl.to("#kw-147", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 65.66);
+    tl.to("#kw-148", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 65.66);
+    tl.to("#kw-148", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 66.18);
+    tl.to("#kw-149", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 66.18);
+    tl.to("#kw-149", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 66.48);
+    tl.to("#kw-150", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 66.48);
+    tl.to("#kw-150", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 66.8);
+    tl.to("#sub-p-38", { opacity: 1, y: 0, duration: 0.15, ease: "power2.out" }, 65.03);
+    tl.fromTo("#bar-38", { width: "0%" }, { width: "100%", duration: 1.72, ease: "none" }, 65.08);
+    tl.to("#sub-p-38", { opacity: 0, y: -10, duration: 0.15, ease: "power2.in" }, 66.89999999999999);
+    tl.to("#kw-151", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 66.8);
+    tl.to("#kw-151", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 67.22);
+    tl.to("#kw-152", { color: "#FF6B4A", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #FF6B4A", duration: 0.08, overwrite: "auto" }, 67.22);
+    tl.to("#kw-152", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 67.68);
+    tl.to("#kw-153", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 67.68);
+    tl.to("#kw-153", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 68.2);
+    tl.to("#sub-p-39", { opacity: 1, y: 0, duration: 0.15, ease: "power2.out" }, 66.75);
+    tl.fromTo("#bar-39", { width: "0%" }, { width: "100%", duration: 1.40, ease: "none" }, 66.8);
+    tl.to("#sub-p-39", { opacity: 0, y: -10, duration: 0.15, ease: "power2.in" }, 68.3);
+    tl.to("#kw-154", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 68.76);
+    tl.to("#kw-154", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 68.9);
+    tl.to("#kw-155", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 68.9);
+    tl.to("#kw-155", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 69.3);
+    tl.to("#sub-p-40", { opacity: 1, y: 0, duration: 0.15, ease: "power2.out" }, 68.71000000000001);
+    tl.fromTo("#bar-40", { width: "0%" }, { width: "100%", duration: 0.54, ease: "none" }, 68.76);
+    tl.to("#sub-p-40", { opacity: 0, y: -10, duration: 0.15, ease: "power2.in" }, 69.39999999999999);
+    tl.to("#kw-156", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 69.82);
+    tl.to("#kw-156", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 70.02);
+    tl.to("#kw-157", { color: "#FF6B4A", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #FF6B4A", duration: 0.08, overwrite: "auto" }, 70.02);
+    tl.to("#kw-157", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 70.26);
+    tl.to("#kw-158", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 70.26);
+    tl.to("#kw-158", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 71.02);
+    tl.to("#kw-159", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 71.02);
+    tl.to("#kw-159", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 71.46);
+    tl.to("#kw-160", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 71.46);
+    tl.to("#kw-160", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 71.88);
+    tl.to("#sub-p-41", { opacity: 1, y: 0, duration: 0.15, ease: "power2.out" }, 69.77);
+    tl.fromTo("#bar-41", { width: "0%" }, { width: "100%", duration: 2.06, ease: "none" }, 69.82);
+    tl.to("#sub-p-41", { opacity: 0, y: -10, duration: 0.15, ease: "power2.in" }, 71.97999999999999);
+    tl.to("#kw-161", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 71.88);
+    tl.to("#kw-161", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 72.08);
+    tl.to("#kw-162", { color: "#FF6B4A", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #FF6B4A", duration: 0.08, overwrite: "auto" }, 72.08);
+    tl.to("#kw-162", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 72.66);
+    tl.to("#kw-163", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 72.66);
+    tl.to("#kw-163", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 73.18);
+    tl.to("#sub-p-42", { opacity: 1, y: 0, duration: 0.15, ease: "power2.out" }, 71.83);
+    tl.fromTo("#bar-42", { width: "0%" }, { width: "100%", duration: 1.30, ease: "none" }, 71.88);
+    tl.to("#sub-p-42", { opacity: 0, y: -10, duration: 0.15, ease: "power2.in" }, 73.28);
+    tl.to("#kw-164", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 74.14);
+    tl.to("#kw-164", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 74.36);
+    tl.to("#kw-165", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 74.36);
+    tl.to("#kw-165", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 75.9);
+    tl.to("#sub-p-43", { opacity: 1, y: 0, duration: 0.15, ease: "power2.out" }, 74.09);
+    tl.fromTo("#bar-43", { width: "0%" }, { width: "100%", duration: 1.76, ease: "none" }, 74.14);
+    tl.to("#sub-p-43", { opacity: 0, y: -10, duration: 0.15, ease: "power2.in" }, 76.0);
+    tl.to("#kw-166", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 76.44);
+    tl.to("#kw-166", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 76.53999999999999);
+    tl.to("#kw-167", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 76.5);
+    tl.to("#kw-167", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 76.92);
+    tl.to("#kw-168", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 76.92);
+    tl.to("#kw-168", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 77.34);
+    tl.to("#kw-169", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 77.34);
+    tl.to("#kw-169", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 77.8);
+    tl.to("#kw-170", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 77.8);
+    tl.to("#kw-170", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 77.92);
+    tl.to("#sub-p-44", { opacity: 1, y: 0, duration: 0.15, ease: "power2.out" }, 76.39);
+    tl.fromTo("#bar-44", { width: "0%" }, { width: "100%", duration: 1.48, ease: "none" }, 76.44);
+    tl.to("#sub-p-44", { opacity: 0, y: -10, duration: 0.15, ease: "power2.in" }, 78.02);
+    tl.to("#kw-171", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 77.92);
+    tl.to("#kw-171", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 78.04);
+    tl.to("#kw-172", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 78.04);
+    tl.to("#kw-172", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 78.58);
+    tl.to("#kw-173", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 78.58);
+    tl.to("#kw-173", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 78.92);
+    tl.to("#kw-174", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 78.92);
+    tl.to("#kw-174", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 79.28);
+    tl.to("#kw-175", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 79.28);
+    tl.to("#kw-175", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 79.66);
+    tl.to("#sub-p-45", { opacity: 1, y: 0, duration: 0.15, ease: "power2.out" }, 77.87);
+    tl.fromTo("#bar-45", { width: "0%" }, { width: "100%", duration: 1.74, ease: "none" }, 77.92);
+    tl.to("#sub-p-45", { opacity: 0, y: -10, duration: 0.15, ease: "power2.in" }, 79.75999999999999);
+    tl.to("#kw-176", { color: "#FF6B4A", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #FF6B4A", duration: 0.08, overwrite: "auto" }, 79.66);
+    tl.to("#kw-176", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 79.98);
+    tl.to("#sub-p-46", { opacity: 1, y: 0, duration: 0.15, ease: "power2.out" }, 79.61);
+    tl.fromTo("#bar-46", { width: "0%" }, { width: "100%", duration: 0.32, ease: "none" }, 79.66);
+    tl.to("#sub-p-46", { opacity: 0, y: -10, duration: 0.15, ease: "power2.in" }, 80.08);
+    tl.to("#kw-177", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 81.28);
+    tl.to("#kw-177", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 81.38);
+    tl.to("#kw-178", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 81.28);
+    tl.to("#kw-178", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 81.48);
+    tl.to("#kw-179", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 81.48);
+    tl.to("#kw-179", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 81.68);
+    tl.to("#sub-p-47", { opacity: 1, y: 0, duration: 0.15, ease: "power2.out" }, 81.23);
+    tl.fromTo("#bar-47", { width: "0%" }, { width: "100%", duration: 0.40, ease: "none" }, 81.28);
+    tl.to("#sub-p-47", { opacity: 0, y: -10, duration: 0.15, ease: "power2.in" }, 81.78);
+    tl.to("#kw-180", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 82.28);
+    tl.to("#kw-180", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 82.38);
+    tl.to("#kw-181", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 82.32);
+    tl.to("#kw-181", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 82.64);
+    tl.to("#kw-182", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 82.64);
+    tl.to("#kw-182", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 82.86);
+    tl.to("#kw-183", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 82.86);
+    tl.to("#kw-183", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 83.36);
+    tl.to("#kw-184", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 83.36);
+    tl.to("#kw-184", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 83.56);
+    tl.to("#sub-p-48", { opacity: 1, y: 0, duration: 0.15, ease: "power2.out" }, 82.23);
+    tl.fromTo("#bar-48", { width: "0%" }, { width: "100%", duration: 1.28, ease: "none" }, 82.28);
+    tl.to("#sub-p-48", { opacity: 0, y: -10, duration: 0.15, ease: "power2.in" }, 83.66);
+    tl.to("#kw-185", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 83.56);
+    tl.to("#kw-185", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 83.78);
+    tl.to("#sub-p-49", { opacity: 1, y: 0, duration: 0.15, ease: "power2.out" }, 83.51);
+    tl.fromTo("#bar-49", { width: "0%" }, { width: "100%", duration: 0.22, ease: "none" }, 83.56);
+    tl.to("#sub-p-49", { opacity: 0, y: -10, duration: 0.15, ease: "power2.in" }, 83.88);
+    tl.to("#kw-186", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 84.14);
+    tl.to("#kw-186", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 84.58);
+    tl.to("#kw-187", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 84.58);
+    tl.to("#kw-187", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 84.92);
+    tl.to("#kw-188", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 84.92);
+    tl.to("#kw-188", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 85.2);
+    tl.to("#kw-189", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 85.2);
+    tl.to("#kw-189", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 85.5);
+    tl.to("#kw-190", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 85.5);
+    tl.to("#kw-190", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 86.44);
+    tl.to("#sub-p-50", { opacity: 1, y: 0, duration: 0.15, ease: "power2.out" }, 84.09);
+    tl.fromTo("#bar-50", { width: "0%" }, { width: "100%", duration: 2.30, ease: "none" }, 84.14);
+    tl.to("#sub-p-50", { opacity: 0, y: -10, duration: 0.15, ease: "power2.in" }, 86.53999999999999);
+    tl.to("#kw-191", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 86.44);
+    tl.to("#kw-191", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 86.6);
+    tl.to("#kw-192", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 86.6);
+    tl.to("#kw-192", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 87.0);
+    tl.to("#kw-193", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 87.0);
+    tl.to("#kw-193", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 87.82);
+    tl.to("#kw-194", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 87.82);
+    tl.to("#kw-194", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 88.18);
+    tl.to("#kw-195", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 88.18);
+    tl.to("#kw-195", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 88.54);
+    tl.to("#sub-p-51", { opacity: 1, y: 0, duration: 0.15, ease: "power2.out" }, 86.39);
+    tl.fromTo("#bar-51", { width: "0%" }, { width: "100%", duration: 2.10, ease: "none" }, 86.44);
+    tl.to("#sub-p-51", { opacity: 0, y: -10, duration: 0.15, ease: "power2.in" }, 88.64);
+    tl.to("#kw-196", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 88.54);
+    tl.to("#kw-196", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 88.76);
+    tl.to("#kw-197", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 88.76);
+    tl.to("#kw-197", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 88.96);
+    tl.to("#kw-198", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 88.96);
+    tl.to("#kw-198", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 89.1);
+    tl.to("#kw-199", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 89.1);
+    tl.to("#kw-199", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 89.62);
+    tl.to("#kw-200", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 89.62);
+    tl.to("#kw-200", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 90.32);
+    tl.to("#sub-p-52", { opacity: 1, y: 0, duration: 0.15, ease: "power2.out" }, 88.49000000000001);
+    tl.fromTo("#bar-52", { width: "0%" }, { width: "100%", duration: 1.78, ease: "none" }, 88.54);
+    tl.to("#sub-p-52", { opacity: 0, y: -10, duration: 0.15, ease: "power2.in" }, 90.41999999999999);
+    tl.to("#kw-201", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 90.32);
+    tl.to("#kw-201", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 90.66);
+    tl.to("#kw-202", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 90.66);
+    tl.to("#kw-202", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 91.28);
+    tl.to("#kw-203", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 91.28);
+    tl.to("#kw-203", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 91.7);
+    tl.to("#kw-204", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 91.7);
+    tl.to("#kw-204", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 91.9);
+    tl.to("#kw-205", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 91.9);
+    tl.to("#kw-205", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 92.46);
+    tl.to("#sub-p-53", { opacity: 1, y: 0, duration: 0.15, ease: "power2.out" }, 90.27);
+    tl.fromTo("#bar-53", { width: "0%" }, { width: "100%", duration: 2.14, ease: "none" }, 90.32);
+    tl.to("#sub-p-53", { opacity: 0, y: -10, duration: 0.15, ease: "power2.in" }, 92.55999999999999);
+    tl.to("#kw-206", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 93.0);
+    tl.to("#kw-206", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 93.1);
+    tl.to("#kw-207", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 93.0);
+    tl.to("#kw-207", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 93.1);
+    tl.to("#kw-208", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 93.1);
+    tl.to("#kw-208", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 93.32);
+    tl.to("#kw-209", { color: "#FF6B4A", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #FF6B4A", duration: 0.08, overwrite: "auto" }, 93.32);
+    tl.to("#kw-209", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 93.78);
+    tl.to("#kw-210", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 93.78);
+    tl.to("#kw-210", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 94.2);
+    tl.to("#sub-p-54", { opacity: 1, y: 0, duration: 0.15, ease: "power2.out" }, 92.95);
+    tl.fromTo("#bar-54", { width: "0%" }, { width: "100%", duration: 1.20, ease: "none" }, 93.0);
+    tl.to("#sub-p-54", { opacity: 0, y: -10, duration: 0.15, ease: "power2.in" }, 94.3);
+    tl.to("#kw-211", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 94.2);
+    tl.to("#kw-211", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 94.66);
+    tl.to("#sub-p-55", { opacity: 1, y: 0, duration: 0.15, ease: "power2.out" }, 94.15);
+    tl.fromTo("#bar-55", { width: "0%" }, { width: "100%", duration: 0.46, ease: "none" }, 94.2);
+    tl.to("#sub-p-55", { opacity: 0, y: -10, duration: 0.15, ease: "power2.in" }, 94.75999999999999);
+    tl.to("#kw-212", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 95.16);
+    tl.to("#kw-212", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 95.38);
+    tl.to("#kw-213", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 95.38);
+    tl.to("#kw-213", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 95.7);
+    tl.to("#kw-214", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 95.7);
+    tl.to("#kw-214", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 96.14);
+    tl.to("#kw-215", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 96.14);
+    tl.to("#kw-215", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 96.58);
+    tl.to("#kw-216", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 96.58);
+    tl.to("#kw-216", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 96.88);
+    tl.to("#sub-p-56", { opacity: 1, y: 0, duration: 0.15, ease: "power2.out" }, 95.11);
+    tl.fromTo("#bar-56", { width: "0%" }, { width: "100%", duration: 1.72, ease: "none" }, 95.16);
+    tl.to("#sub-p-56", { opacity: 0, y: -10, duration: 0.15, ease: "power2.in" }, 96.97999999999999);
+    tl.to("#kw-217", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 96.88);
+    tl.to("#kw-217", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 97.02);
+    tl.to("#kw-218", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 97.02);
+    tl.to("#kw-218", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 97.5);
+    tl.to("#sub-p-57", { opacity: 1, y: 0, duration: 0.15, ease: "power2.out" }, 96.83);
+    tl.fromTo("#bar-57", { width: "0%" }, { width: "100%", duration: 0.62, ease: "none" }, 96.88);
+    tl.to("#sub-p-57", { opacity: 0, y: -10, duration: 0.15, ease: "power2.in" }, 97.6);
+    tl.to("#kw-219", { color: "#FF6B4A", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #FF6B4A", duration: 0.08, overwrite: "auto" }, 98.0);
+    tl.to("#kw-219", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 98.14);
+    tl.to("#kw-220", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 98.14);
+    tl.to("#kw-220", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 98.7);
+    tl.to("#kw-221", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 98.7);
+    tl.to("#kw-221", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 98.86);
+    tl.to("#kw-222", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 98.86);
+    tl.to("#kw-222", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 99.24);
+    tl.to("#sub-p-58", { opacity: 1, y: 0, duration: 0.15, ease: "power2.out" }, 97.95);
+    tl.fromTo("#bar-58", { width: "0%" }, { width: "100%", duration: 1.24, ease: "none" }, 98.0);
+    tl.to("#sub-p-58", { opacity: 0, y: -10, duration: 0.15, ease: "power2.in" }, 99.33999999999999);
+    tl.to("#kw-223", { color: "#FF6B4A", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #FF6B4A", duration: 0.08, overwrite: "auto" }, 100.12);
+    tl.to("#kw-223", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 100.36);
+    tl.to("#kw-224", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 100.36);
+    tl.to("#kw-224", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 100.94);
+    tl.to("#kw-225", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 100.94);
+    tl.to("#kw-225", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 101.12);
+    tl.to("#kw-226", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 101.12);
+    tl.to("#kw-226", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 101.32);
+    tl.to("#kw-227", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 101.32);
+    tl.to("#kw-227", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 101.64);
+    tl.to("#sub-p-59", { opacity: 1, y: 0, duration: 0.15, ease: "power2.out" }, 100.07000000000001);
+    tl.fromTo("#bar-59", { width: "0%" }, { width: "100%", duration: 1.52, ease: "none" }, 100.12);
+    tl.to("#sub-p-59", { opacity: 0, y: -10, duration: 0.15, ease: "power2.in" }, 101.74);
+    tl.to("#kw-228", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 102.14);
+    tl.to("#kw-228", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 102.48);
+    tl.to("#kw-229", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 102.48);
+    tl.to("#kw-229", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 102.76);
+    tl.to("#kw-230", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 102.76);
+    tl.to("#kw-230", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 102.98);
+    tl.to("#kw-231", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 102.98);
+    tl.to("#kw-231", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 103.28);
+    tl.to("#sub-p-60", { opacity: 1, y: 0, duration: 0.15, ease: "power2.out" }, 102.09);
+    tl.fromTo("#bar-60", { width: "0%" }, { width: "100%", duration: 1.14, ease: "none" }, 102.14);
+    tl.to("#sub-p-60", { opacity: 0, y: -10, duration: 0.15, ease: "power2.in" }, 103.38);
+    tl.to("#kw-232", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 103.96);
+    tl.to("#kw-232", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 104.05999999999999);
+    tl.to("#kw-233", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 104.02);
+    tl.to("#kw-233", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 104.38);
+    tl.to("#kw-234", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 104.38);
+    tl.to("#kw-234", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 104.94);
+    tl.to("#kw-235", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 104.94);
+    tl.to("#kw-235", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 105.36);
+    tl.to("#kw-236", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 105.36);
+    tl.to("#kw-236", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 105.58);
+    tl.to("#sub-p-61", { opacity: 1, y: 0, duration: 0.15, ease: "power2.out" }, 103.91);
+    tl.fromTo("#bar-61", { width: "0%" }, { width: "100%", duration: 1.62, ease: "none" }, 103.96);
+    tl.to("#sub-p-61", { opacity: 0, y: -10, duration: 0.15, ease: "power2.in" }, 105.67999999999999);
+    tl.to("#kw-237", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 105.58);
+    tl.to("#kw-237", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 106.06);
+    tl.to("#kw-238", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 106.06);
+    tl.to("#kw-238", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 106.2);
+    tl.to("#kw-239", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 106.2);
+    tl.to("#kw-239", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 106.54);
+    tl.to("#kw-240", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 106.54);
+    tl.to("#kw-240", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 107.22);
+    tl.to("#kw-241", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px #00E599", duration: 0.08, overwrite: "auto" }, 107.22);
+    tl.to("#kw-241", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 107.6);
+    tl.to("#sub-p-62", { opacity: 1, y: 0, duration: 0.15, ease: "power2.out" }, 105.53);
+    tl.fromTo("#bar-62", { width: "0%" }, { width: "100%", duration: 2.02, ease: "none" }, 105.58);
+    tl.to("#sub-p-62", { opacity: 0, y: -10, duration: 0.15, ease: "power2.in" }, 107.69999999999999);
+
+    window.__timelines["main"] = tl;
+  </script>
+</body>
+</html>

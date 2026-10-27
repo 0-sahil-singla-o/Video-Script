@@ -1,0 +1,1488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shopify Architecture - Master Explainer</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <style>
+    :root {
+      --bg: #07090E;
+      --card-bg: #0F141F;
+      --border: #1E293B;
+      --coral: #FF6B4A;
+      --mysql-blue: #00758F;
+      --mysql-cyan: #00A3C4;
+      --shopify-green: #00E599;
+      --lock-red: #EF4444;
+      --gold-light: #FDE047;
+      --gold-dark: #D97706;
+      --text: #F8FAFC;
+      --muted: #94A3B8;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Inter", sans-serif;
+      overflow: hidden;
+      margin: 0;
+      padding: 0;
+      width: 1080px;
+      height: 1920px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    #canvas {
+      width: 1080px;
+      height: 1920px;
+      position: relative;
+      background: radial-gradient(circle at 50% 30%, #111827 0%, #06080D 80%);
+      overflow: hidden;
+      perspective: 1200px;
+    }
+
+    /* Cyberpunk Motion Background Grid */
+    .bg-grid {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background-size: 40px 40px;
+      background-image: radial-gradient(rgba(255, 255, 255, 0.08) 1.5px, transparent 1.5px);
+      pointer-events: none;
+      opacity: 0.5;
+    }
+
+    /* Top Universal Category Tag (Safe Zone: top 180px - 260px) */
+    .top-badge-container {
+      position: absolute;
+      top: 180px;
+      left: 0;
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      z-index: 100;
+    }
+    .top-badge {
+      background: rgba(15, 20, 31, 0.9);
+      border: 1px solid rgba(0, 229, 153, 0.4);
+      color: var(--shopify-green);
+      font-size: 22px;
+      font-weight: 900;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      padding: 10px 30px;
+      border-radius: 40px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+    }
+
+    /* Universal Timed Scene Clip */
+    .clip {
+      position: absolute;
+      width: 1080px;
+      height: 1920px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+      opacity: 0;
+    }
+
+    /* Hero Act Banner (Top Zone) */
+    .hero-banner {
+      position: absolute;
+      top: 270px;
+      font-size: 44px;
+      font-weight: 900;
+      color: #FFFFFF;
+      letter-spacing: -0.5px;
+      text-align: center;
+      max-width: 920px;
+      line-height: 1.25;
+      text-shadow: 0 8px 25px rgba(0, 0, 0, 0.9);
+      z-index: 90;
+    }
+
+    /* Dynamic Karaoke Subtitles Container (Safe Zone: bottom 380px - 560px) */
+    .subtitle-stage {
+      position: absolute;
+      bottom: 400px;
+      left: 60px;
+      right: 60px;
+      height: 160px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 120;
+      pointer-events: none;
+    }
+
+    .sub-phrase {
+      position: absolute;
+      width: 100%;
+      text-align: center;
+      font-size: 44px;
+      font-weight: 700;
+      line-height: 1.4;
+      opacity: 0;
+      transform: translateY(10px);
+      text-shadow: 0 4px 15px rgba(0, 0, 0, 0.95);
+    }
+
+    .sub-word {
+      display: inline-block;
+      color: rgba(255, 255, 255, 0.4);
+      margin: 0 8px;
+      transform-origin: center bottom;
+    }
+
+    /* ========================================================== */
+    /* 17 MICRO-SCENE VISUAL ASSETS & GEOMETRIES                  */
+    /* ========================================================== */
+
+    /* SCENE 1: BLACK FRIDAY CALENDAR */
+    .calendar-card {
+      width: 440px;
+      height: 380px;
+      background: #111827;
+      border: 3px solid var(--lock-red);
+      border-radius: 28px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      box-shadow: 0 25px 60px rgba(239, 68, 68, 0.4);
+      transform-style: preserve-3d;
+    }
+    .cal-header {
+      background: var(--lock-red);
+      color: #FFF;
+      font-weight: 900;
+      font-size: 28px;
+      text-align: center;
+      padding: 16px;
+      letter-spacing: 4px;
+    }
+    .cal-body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      flex-grow: 1;
+      gap: 12px;
+    }
+    .cal-num {
+      font-size: 110px;
+      font-weight: 900;
+      color: #FFFFFF;
+      line-height: 1;
+    }
+    .cal-sub {
+      font-size: 24px;
+      font-weight: 800;
+      color: #FECACA;
+      letter-spacing: 2px;
+    }
+
+    /* SCENE 2: 10,000 CHECKOUT SMASH */
+    .checkout-btn-box {
+      width: 580px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 30px;
+      position: relative;
+    }
+    .big-checkout-btn {
+      width: 540px;
+      height: 120px;
+      background: linear-gradient(135deg, #FF6B4A 0%, #D9381E 100%);
+      border-radius: 24px;
+      border: 3px solid #FF9B82;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 42px;
+      font-weight: 900;
+      color: #FFFFFF;
+      letter-spacing: 2px;
+      box-shadow: 0 20px 50px rgba(255, 107, 74, 0.5);
+    }
+    .traffic-pings-grid {
+      display: flex;
+      gap: 20px;
+    }
+    .ping-pill {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #F8FAFC;
+      font-family: monospace;
+      font-size: 22px;
+      font-weight: 800;
+      padding: 10px 24px;
+      border-radius: 30px;
+    }
+
+    /* SCENE 3: 3D HOODIE SHOWCASE + COUNTDOWN */
+    .hoodie-showcase-rig {
+      position: relative;
+      width: 440px;
+      height: 440px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      transform-style: preserve-3d;
+    }
+    .rotating-hoodie-svg {
+      width: 280px;
+      height: 280px;
+      filter: drop-shadow(0 25px 40px rgba(0, 0, 0, 0.8));
+    }
+    .stock-counter-badge {
+      position: absolute;
+      top: -30px;
+      background: rgba(239, 68, 68, 0.25);
+      border: 2px solid var(--lock-red);
+      color: #FFB3B3;
+      font-size: 28px;
+      font-weight: 900;
+      letter-spacing: 2px;
+      padding: 10px 32px;
+      border-radius: 40px;
+      box-shadow: 0 0 35px rgba(239, 68, 68, 0.6);
+    }
+
+    /* SCENE 4: WHO WINS? SPOTLIGHT */
+    .spotlight-box {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 30px;
+    }
+    .giant-qmark {
+      font-size: 180px;
+      font-weight: 900;
+      color: var(--coral);
+      text-shadow: 0 0 60px rgba(255, 107, 74, 0.8);
+      line-height: 1;
+    }
+    .millisecond-clock {
+      font-family: monospace;
+      font-size: 54px;
+      font-weight: 900;
+      color: #F8FAFC;
+      background: #111827;
+      border: 2px solid #334155;
+      padding: 14px 40px;
+      border-radius: 16px;
+      letter-spacing: 4px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.8);
+    }
+
+    /* SCENE 5 & 6: DATABASE NOTEBOOK TABLE & SCANNER */
+    .ledger-table {
+      width: 720px;
+      background: #0F172A;
+      border: 2px solid #334155;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 30px 60px rgba(0, 0, 0, 0.8);
+      position: relative;
+    }
+    .table-header {
+      background: #1E293B;
+      display: grid;
+      grid-template-columns: 140px 1fr 180px;
+      padding: 18px 28px;
+      font-weight: 900;
+      font-size: 22px;
+      color: #94A3B8;
+      letter-spacing: 1px;
+    }
+    .table-row {
+      display: grid;
+      grid-template-columns: 140px 1fr 180px;
+      padding: 24px 28px;
+      font-family: monospace;
+      font-size: 28px;
+      font-weight: 700;
+      border-bottom: 1px solid #1E293B;
+      position: relative;
+    }
+    .table-row.target {
+      background: rgba(0, 163, 196, 0.15);
+      border-left: 6px solid var(--mysql-cyan);
+    }
+    .scan-beam {
+      position: absolute;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: var(--mysql-cyan);
+      box-shadow: 0 0 20px var(--mysql-cyan);
+      top: 0;
+    }
+
+    /* SCENE 7: ERASE 1 -> WRITE 0 */
+    .overwrite-box {
+      width: 500px;
+      height: 300px;
+      background: #111827;
+      border: 3px solid var(--mysql-cyan);
+      border-radius: 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.8);
+    }
+    .val-transition {
+      font-size: 110px;
+      font-weight: 900;
+      font-family: monospace;
+      display: flex;
+      align-items: center;
+      gap: 30px;
+    }
+    .val-old { color: #94A3B8; text-decoration: line-through; opacity: 0.5; }
+    .val-arrow { font-size: 60px; color: var(--shopify-green); }
+    .val-new { color: var(--lock-red); }
+
+    /* SCENE 8: HEAVY PADLOCK SLAM */
+    .padlock-assembly {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+      transform-style: preserve-3d;
+    }
+    .shackle-u {
+      width: 160px;
+      height: 150px;
+      border: 24px solid #CBD5E1;
+      border-bottom: none;
+      border-radius: 80px 80px 0 0;
+      box-shadow: inset 0 4px 10px rgba(255, 255, 255, 0.8), 0 10px 20px rgba(0, 0, 0, 0.6);
+      margin-bottom: -25px;
+      z-index: 1;
+    }
+    .padlock-body-red {
+      width: 280px;
+      height: 220px;
+      background: linear-gradient(135deg, #DC2626 0%, #991B1B 100%);
+      border-radius: 28px;
+      border: 3px solid #EF4444;
+      box-shadow: 0 30px 60px rgba(239, 68, 68, 0.5);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      z-index: 2;
+    }
+    .lock-text-banner {
+      color: #FFFFFF;
+      font-weight: 900;
+      font-size: 32px;
+      letter-spacing: 4px;
+    }
+    .row-lock-alert {
+      margin-top: 35px;
+      background: rgba(239, 68, 68, 0.2);
+      border: 2px solid var(--lock-red);
+      color: #FEE2E2;
+      font-family: monospace;
+      font-size: 28px;
+      font-weight: 800;
+      padding: 14px 36px;
+      border-radius: 12px;
+    }
+
+    /* SCENE 9 & 10: QUEUE JAM & 504 TIMEOUT */
+    .queue-jam-rig {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 30px;
+      width: 720px;
+    }
+    .queue-row {
+      display: flex;
+      gap: 18px;
+      align-items: center;
+    }
+    .queue-item {
+      background: #1E293B;
+      border: 2px solid #475569;
+      color: #94A3B8;
+      padding: 16px 24px;
+      border-radius: 14px;
+      font-size: 20px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .spinner-dot {
+      width: 14px;
+      height: 14px;
+      border: 3px solid #FF6B4A;
+      border-top-color: transparent;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { 100% { transform: rotate(360deg); } }
+
+    .error-alert-banner {
+      background: rgba(239, 68, 68, 0.2);
+      border: 2px solid var(--lock-red);
+      color: #FCA5A5;
+      font-family: monospace;
+      font-size: 26px;
+      font-weight: 900;
+      padding: 18px 40px;
+      border-radius: 14px;
+      box-shadow: 0 0 40px rgba(239, 68, 68, 0.4);
+    }
+
+    /* SCENE 11: SHOPIFY BLUEPRINT */
+    .blueprint-card {
+      width: 680px;
+      background: #0B1E19;
+      border: 3px solid var(--shopify-green);
+      border-radius: 24px;
+      padding: 36px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+      box-shadow: 0 0 50px rgba(0, 229, 153, 0.35);
+    }
+    .blueprint-title {
+      font-size: 36px;
+      font-weight: 900;
+      color: var(--shopify-green);
+      letter-spacing: 2px;
+    }
+
+    /* SCENE 12: 1 ROW SHATTERS TO 6 ROWS */
+    .split-units-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      width: 720px;
+    }
+    .unit-card {
+      background: #111827;
+      border: 2px solid var(--shopify-green);
+      border-radius: 16px;
+      padding: 24px 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.6);
+    }
+    .unit-title {
+      font-family: monospace;
+      font-size: 24px;
+      font-weight: 900;
+      color: #FFFFFF;
+    }
+    .unit-status {
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--shopify-green);
+      letter-spacing: 1px;
+    }
+
+    /* SCENE 13: 6 TOKENS IN GLASS BOWL */
+    .glass-bowl-rig {
+      width: 580px;
+      height: 480px;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-end;
+    }
+    .glass-bowl-vessel {
+      width: 540px;
+      height: 380px;
+      border: 4px solid rgba(255, 255, 255, 0.35);
+      border-top: none;
+      border-radius: 0 0 270px 270px;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.02) 0%, rgba(0, 229, 153, 0.12) 100%);
+      box-shadow: inset 0 -25px 50px rgba(0, 229, 153, 0.25), 0 30px 60px rgba(0, 0, 0, 0.8);
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      padding-bottom: 50px;
+      position: relative;
+    }
+    .token-grid-6 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      z-index: 5;
+    }
+    .gold-coin-3d {
+      width: 105px;
+      height: 105px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 35%, #FDE047 0%, #F59E0B 55%, #B45309 100%);
+      box-shadow: 0 12px 0 #78350F, 0 20px 30px rgba(0, 0, 0, 0.7);
+      border: 4px solid #FEF08A;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #78350F;
+      font-weight: 900;
+      font-size: 42px;
+    }
+
+    /* SCENE 14 & 15: SKIP LOCKED CHOREOGRAPHY */
+    .skip-track-stage {
+      width: 800px;
+      display: flex;
+      gap: 50px;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+    .station-unit {
+      width: 220px;
+      height: 300px;
+      background: #111827;
+      border-radius: 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      border: 3px solid var(--border);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+      position: relative;
+    }
+    .station-unit.locked {
+      border-color: var(--lock-red);
+      background: rgba(239, 68, 68, 0.08);
+      box-shadow: 0 0 40px rgba(239, 68, 68, 0.3);
+    }
+    .station-unit.claimed {
+      border-color: var(--shopify-green);
+      background: rgba(0, 229, 153, 0.1);
+      box-shadow: 0 0 50px rgba(0, 229, 153, 0.35);
+    }
+    .cursor-vector {
+      position: absolute;
+      top: 40px;
+      left: 120px;
+      width: 75px;
+      height: 75px;
+      filter: drop-shadow(0 20px 25px rgba(0, 0, 0, 0.8));
+      z-index: 50;
+    }
+
+    /* SCENE 16: PARALLEL PIPELINE THROUGHPUT */
+    .parallel-pipes-rig {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      width: 740px;
+    }
+    .pipe-lane {
+      height: 48px;
+      background: #111827;
+      border: 2px solid var(--shopify-green);
+      border-radius: 24px;
+      display: flex;
+      align-items: center;
+      padding: 0 20px;
+      justify-content: space-between;
+      box-shadow: 0 0 20px rgba(0, 229, 153, 0.2);
+    }
+    .pipe-tag {
+      font-family: monospace;
+      font-weight: 800;
+      color: #FFF;
+      font-size: 20px;
+    }
+    .pipe-status {
+      font-size: 16px;
+      font-weight: 900;
+      color: var(--shopify-green);
+      letter-spacing: 1px;
+    }
+
+    /* SCENE 17: PRODUCTION TERMINAL & VERIFICATION */
+    .prod-terminal {
+      width: 860px;
+      background: #0F172A;
+      border: 2px solid #334155;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 35px 70px rgba(0, 0, 0, 0.8);
+    }
+    .term-bar {
+      height: 52px;
+      background: #1E293B;
+      display: flex;
+      align-items: center;
+      padding: 0 24px;
+      gap: 12px;
+    }
+    .dot-r { width: 16px; height: 16px; border-radius: 50%; background: #EF4444; }
+    .dot-y { width: 16px; height: 16px; border-radius: 50%; background: #F59E0B; }
+    .dot-g { width: 16px; height: 16px; border-radius: 50%; background: #10B981; }
+    .term-code {
+      padding: 36px 44px;
+      font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+      font-size: 26px;
+      line-height: 1.6;
+    }
+    .kw { color: #38BDF8; font-weight: 700; }
+    .tbl { color: #A78BFA; }
+    .hl { color: var(--shopify-green); font-weight: 900; }
+    .val { color: #FDE047; }
+    .victory-badge {
+      margin-top: 30px;
+      background: rgba(0, 229, 153, 0.15);
+      border: 2px solid var(--shopify-green);
+      color: #A7F3D0;
+      font-size: 30px;
+      font-weight: 900;
+      letter-spacing: 2px;
+      padding: 16px 44px;
+      border-radius: 50px;
+      box-shadow: 0 0 50px rgba(0, 229, 153, 0.4);
+    }
+  </style>
+</head>
+<body>
+  <div id="canvas" data-composition-id="main" data-width="1080" data-height="1920" data-duration="68.6" data-layout-allow-overlap="true">
+    <div class="bg-grid"></div>
+
+    <!-- Audio Track -->
+    <audio id="narration" src="dist/voice.wav" data-start="0" data-duration="68.6" preload="auto"></audio>
+
+    <!-- Top Badge -->
+    <div class="top-badge-container">
+      <div class="top-badge">SHOPIFY ARCHITECTURE</div>
+    </div>
+
+    <!-- ================= 17 DYNAMIC MICRO-SCENES ================= -->
+
+    <!-- SCENE 1 (0.0s - 2.8s): BLACK FRIDAY CALENDAR -->
+    <div id="clip1" class="clip" data-start="0" data-duration="2.8" data-hold="true">
+      <div class="hero-banner">THE FLASH SALE PROBLEM</div>
+      <div class="calendar-card" id="s1-cal">
+        <div class="cal-header">NOVEMBER</div>
+        <div class="cal-body">
+          <div class="cal-num">27</div>
+          <div class="cal-sub">BLACK FRIDAY</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SCENE 2 (2.8s - 5.5s): 10,000 CHECKOUT SMASH -->
+    <div id="clip2" class="clip" data-start="2.8" data-duration="2.7" data-hold="true">
+      <div class="hero-banner">10,000 CHECKOUTS PER SECOND</div>
+      <div class="checkout-btn-box" id="s2-btn-box">
+        <div class="big-checkout-btn">⚡ SMASH CHECKOUT</div>
+        <div class="traffic-pings-grid">
+          <div class="ping-pill">User #1042</div>
+          <div class="ping-pill">User #8931</div>
+          <div class="ping-pill">User #4412</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SCENE 3 (5.5s - 8.0s): LAST HOODIE ROTATING SHOWCASE -->
+    <div id="clip3" class="clip" data-start="5.5" data-duration="2.5" data-hold="true">
+      <div class="hero-banner">THE LAST HOODIE LEFT</div>
+      <div class="hoodie-showcase-rig" id="s3-showcase">
+        <div class="stock-counter-badge" data-layout-ignore="true">⚡ 1 LEFT IN STOCK</div>
+        <svg class="rotating-hoodie-svg" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M25 22L38 12H62L75 22L90 42L76 52L72 38V88H28V38L24 52L10 42L25 22Z" fill="url(#hg3)" stroke="#FF6B4A" stroke-width="3" stroke-linejoin="round"/>
+          <path d="M40 12C40 22 45 28 50 28C55 28 60 22 60 12" stroke="#FF6B4A" stroke-width="2.5" stroke-linecap="round"/>
+          <defs>
+            <linearGradient id="hg3" x1="10" y1="12" x2="90" y2="88" gradientUnits="userSpaceOnUse">
+              <stop stop-color="#334155"/>
+              <stop offset="1" stop-color="#0F172A"/>
+            </linearGradient>
+          </defs>
+        </svg>
+      </div>
+    </div>
+
+    <!-- SCENE 4 (8.0s - 10.4s): WHO WINS? SPOTLIGHT -->
+    <div id="clip4" class="clip" data-start="8.0" data-duration="2.4" data-hold="true">
+      <div class="hero-banner">AT THE EXACT SAME MILLISECOND</div>
+      <div class="spotlight-box" id="s4-spotlight">
+        <div class="giant-qmark">?</div>
+        <div class="millisecond-clock">00:00:00.001</div>
+      </div>
+    </div>
+
+    <!-- SCENE 5 (10.4s - 13.2s): DATABASE NOTEBOOK -->
+    <div id="clip5" class="clip" data-start="10.4" data-duration="2.8" data-hold="true">
+      <div class="hero-banner">DATABASE = PHYSICAL NOTEBOOK</div>
+      <div class="ledger-table" id="s5-table">
+        <div class="table-header"><div>ID</div><div>ITEM SKU</div><div>STOCK</div></div>
+        <div class="table-row"><div>#401</div><div>CAP-VINTAGE</div><div>12</div></div>
+        <div class="table-row target"><div>#402</div><div>HOODIE-BLACK</div><div>1</div></div>
+        <div class="table-row"><div>#403</div><div>TEE-GRAPHIC</div><div>8</div></div>
+      </div>
+    </div>
+
+    <!-- SCENE 6 (13.2s - 16.5s): LASER ROW SCANNER -->
+    <div id="clip6" class="clip" data-start="13.2" data-duration="3.3" data-hold="true">
+      <div class="hero-banner">SERVER FLIPS TO ROW #402</div>
+      <div class="ledger-table" id="s6-table">
+        <div class="scan-beam" id="s6-beam"></div>
+        <div class="table-header"><div>ID</div><div>ITEM SKU</div><div>STOCK</div></div>
+        <div class="table-row"><div>#401</div><div>CAP-VINTAGE</div><div>12</div></div>
+        <div class="table-row target"><div>#402</div><div>HOODIE-BLACK</div><div>1</div></div>
+        <div class="table-row"><div>#403</div><div>TEE-GRAPHIC</div><div>8</div></div>
+      </div>
+    </div>
+
+    <!-- SCENE 7 (16.5s - 19.8s): CELL OVERWRITE -->
+    <div id="clip7" class="clip" data-start="16.5" data-duration="3.3" data-hold="true">
+      <div class="hero-banner">ERASE 1 -> WRITE 0</div>
+      <div class="overwrite-box" id="s7-box">
+        <div style="font-size: 24px; color: #94A3B8; font-weight: 800;">ROW #402 STOCK COUNT</div>
+        <div class="val-transition">
+          <span class="val-old">1</span>
+          <span class="val-arrow">→</span>
+          <span class="val-new">0</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- SCENE 8 (19.8s - 23.0s): HEAVY INDUSTRIAL PADLOCK SLAM -->
+    <div id="clip8" class="clip" data-start="19.8" data-duration="3.2" data-hold="true">
+      <div class="hero-banner">ROW-LEVEL LOCKDOWN</div>
+      <div class="padlock-assembly" id="s8-lock">
+        <div class="shackle-u" id="s8-shackle"></div>
+        <div class="padlock-body-red">
+          <span class="lock-text-banner">OCCUPIED</span>
+        </div>
+      </div>
+      <div class="row-lock-alert">SELECT ... FOR UPDATE [LOCKED]</div>
+    </div>
+
+    <!-- SCENE 9 (23.0s - 27.5s): CONGESTION TRAFFIC JAM -->
+    <div id="clip9" class="clip" data-start="23.0" data-duration="4.5" data-hold="true">
+      <div class="hero-banner">THOUSANDS QUEUE BEHIND ONE LOCK</div>
+      <div class="queue-jam-rig" id="s9-queue">
+        <div class="queue-row"><div class="queue-item"><div class="spinner-dot"></div> Shopper #101 (Waiting...)</div></div>
+        <div class="queue-row"><div class="queue-item"><div class="spinner-dot"></div> Shopper #102 (Waiting...)</div></div>
+        <div class="queue-row"><div class="queue-item"><div class="spinner-dot"></div> Shopper #103 (Waiting...)</div></div>
+      </div>
+    </div>
+
+    <!-- SCENE 10 (27.5s - 33.6s): SERVER CRASH & TIMEOUT -->
+    <div id="clip10" class="clip" data-start="27.5" data-duration="6.1" data-hold="true">
+      <div class="hero-banner">CONNECTION TIMEOUTS & CRASHES</div>
+      <div class="error-alert-banner" id="s10-error">
+        ⚠️ HTTP 504 GATEWAY TIMEOUT<br>
+        <span style="font-size: 20px; color: #FCA5A5;">Lock wait timeout exceeded; try restarting transaction</span>
+      </div>
+    </div>
+
+    <!-- SCENE 11 (33.6s - 37.0s): SHOPIFY BLUEPRINT -->
+    <div id="clip11" class="clip" data-start="33.6" data-duration="3.4" data-hold="true">
+      <div class="hero-banner">THE SHOPIFY ARCHITECTURAL TRICK</div>
+      <div class="blueprint-card" id="s11-card">
+        <div class="blueprint-title">BOUNDED UNIT POOL</div>
+        <div style="font-size: 24px; color: #E2E8F0; text-align: center;">Transforming 1 bottleneck counter into N independent rows</div>
+      </div>
+    </div>
+
+    <!-- SCENE 12 (37.0s - 42.5s): 1 ROW SHATTERS INTO 6 ROWS -->
+    <div id="clip12" class="clip" data-start="37.0" data-duration="5.5" data-hold="true">
+      <div class="hero-banner">1 ROW OF 6 -> 6 SEPARATE ROWS</div>
+      <div class="split-units-grid" id="s12-grid">
+        <div class="unit-card"><div class="unit-title">Row #1</div><div class="unit-status">AVAILABLE</div></div>
+        <div class="unit-card"><div class="unit-title">Row #2</div><div class="unit-status">AVAILABLE</div></div>
+        <div class="unit-card"><div class="unit-title">Row #3</div><div class="unit-status">AVAILABLE</div></div>
+        <div class="unit-card"><div class="unit-title">Row #4</div><div class="unit-status">AVAILABLE</div></div>
+        <div class="unit-card"><div class="unit-title">Row #5</div><div class="unit-status">AVAILABLE</div></div>
+        <div class="unit-card"><div class="unit-title">Row #6</div><div class="unit-status">AVAILABLE</div></div>
+      </div>
+    </div>
+
+    <!-- SCENE 13 (42.5s - 46.5s): 6 TOKENS IN GLASS BOWL -->
+    <div id="clip13" class="clip" data-start="42.5" data-duration="4.0" data-hold="true">
+      <div class="hero-banner">SIX PHYSICAL TOKENS IN A BOWL</div>
+      <div class="glass-bowl-rig" id="s13-bowl">
+        <div class="glass-bowl-vessel">
+          <div class="token-grid-6" id="s13-tokens">
+            <div class="gold-coin-3d">1</div>
+            <div class="gold-coin-3d">2</div>
+            <div class="gold-coin-3d">3</div>
+            <div class="gold-coin-3d">4</div>
+            <div class="gold-coin-3d">5</div>
+            <div class="gold-coin-3d">6</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SCENE 14 (46.5s - 51.5s): CONCURRENT QUERY ARRIVAL -->
+    <div id="clip14" class="clip" data-start="46.5" data-duration="5.0" data-hold="true">
+      <div class="hero-banner">EVERY QUERY ASKS FOR ONE TOKEN</div>
+      <div class="skip-track-stage" id="s14-stage">
+        <div class="station-unit" style="border-color: var(--shopify-green);">
+          <div class="gold-coin-3d">1</div>
+          <span style="color: var(--shopify-green); font-size: 20px; font-weight: 800;">UNIT #1</span>
+        </div>
+        <div class="station-unit" style="border-color: var(--shopify-green);">
+          <div class="gold-coin-3d">2</div>
+          <span style="color: var(--shopify-green); font-size: 20px; font-weight: 800;">UNIT #2</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- SCENE 15 (51.5s - 58.7s): SKIP LOCKED BYPASS -->
+    <div id="clip15" class="clip" data-start="51.5" data-duration="7.2" data-hold="true">
+      <div class="hero-banner">DON'T WAIT. SKIP TO TOKEN #2.</div>
+      <div class="skip-track-stage" id="s15-stage">
+        <!-- Token 1 Locked -->
+        <div class="station-unit locked" id="s15-st1">
+          <div class="gold-coin-3d" style="color: #451A03; background: #CA8A04;">1</div>
+          <span style="color: var(--lock-red); font-size: 22px; font-weight: 900;">LOCKED</span>
+        </div>
+        <!-- Token 2 Claimed -->
+        <div class="station-unit claimed" id="s15-st2">
+          <div class="gold-coin-3d">2</div>
+          <span style="color: var(--shopify-green); font-size: 22px; font-weight: 900;">CLAIMED</span>
+        </div>
+        <!-- Cursor -->
+        <svg class="cursor-vector" id="s15-cursor" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M4 3L11 21L14 13L21 10L4 3Z" fill="#FFFFFF" stroke="#000000" stroke-width="2" stroke-linejoin="round"/>
+        </svg>
+      </div>
+    </div>
+
+    <!-- SCENE 16 (58.7s - 63.5s): PARALLEL THROUGHPUT PIPELINE -->
+    <div id="clip16" class="clip" data-start="58.7" data-duration="4.8" data-hold="true">
+      <div class="hero-banner">NO QUEUE. NO DEADLOCKS.</div>
+      <div class="parallel-pipes-rig" id="s16-pipes">
+        <div class="pipe-lane"><span class="pipe-tag">Worker Thread #1</span><span class="pipe-status">100% PARALLEL</span></div>
+        <div class="pipe-lane"><span class="pipe-tag">Worker Thread #2</span><span class="pipe-status">100% PARALLEL</span></div>
+        <div class="pipe-lane"><span class="pipe-tag">Worker Thread #3</span><span class="pipe-status">100% PARALLEL</span></div>
+        <div class="pipe-lane"><span class="pipe-tag">Worker Thread #4</span><span class="pipe-status">100% PARALLEL</span></div>
+      </div>
+    </div>
+
+    <!-- SCENE 17 (63.5s - 68.6s): PRODUCTION TERMINAL & VICTORY -->
+    <div id="clip17" class="clip" data-start="63.5" data-duration="5.1" data-hold="true">
+      <div class="hero-banner">NEVER SOLD TWICE</div>
+      <div class="prod-terminal" id="s17-term">
+        <div class="term-bar">
+          <div class="dot-r"></div><div class="dot-y"></div><div class="dot-g"></div>
+          <span style="color: #CBD5E1; font-size: 18px; margin-left: 12px; font-family: monospace;">mysql — production</span>
+        </div>
+        <div class="term-code">
+          <p><span class="kw">SELECT</span> id <span class="kw">FROM</span> <span class="tbl">inventory_units</span></p>
+          <p><span class="kw">WHERE</span> sku = <span class="val">'HOODIE-BLK'</span> <span class="kw">AND</span> status = <span class="val">'available'</span></p>
+          <p><span class="kw">LIMIT</span> <span class="val">1</span></p>
+          <p><span class="hl">FOR UPDATE SKIP LOCKED;</span></p>
+          <p style="color: #10B981; margin-top: 14px; font-weight: 800;">✓ 1 row affected (0.84 ms)</p>
+        </div>
+      </div>
+      <div class="victory-badge">100% INVENTORY INTEGRITY</div>
+    </div>
+
+    <!-- ================= DYNAMIC KARAOKE SUBTITLES ================= -->
+    <div class="subtitle-stage">
+      <div id="phrase-0" class="sub-phrase"><span id="w-0" class="sub-word">Picture</span> <span id="w-1" class="sub-word">this,</span></div>
+      <div id="phrase-1" class="sub-phrase"><span id="w-2" class="sub-word">it</span> <span id="w-3" class="sub-word">is</span> <span id="w-4" class="sub-word">Black</span> <span id="w-5" class="sub-word">Friday.</span></div>
+      <div id="phrase-2" class="sub-phrase"><span id="w-6" class="sub-word">10</span> <span id="w-7" class="sub-word">,000</span> <span id="w-8" class="sub-word">shoppers</span> <span id="w-9" class="sub-word">smash</span> <span id="w-10" class="sub-word">the</span></div>
+      <div id="phrase-3" class="sub-phrase"><span id="w-11" class="sub-word">checkout</span> <span id="w-12" class="sub-word">button</span> <span id="w-13" class="sub-word">for</span> <span id="w-14" class="sub-word">the</span> <span id="w-15" class="sub-word">last</span></div>
+      <div id="phrase-4" class="sub-phrase"><span id="w-16" class="sub-word">remaining</span> <span id="w-17" class="sub-word">hoodie</span> <span id="w-18" class="sub-word">at</span> <span id="w-19" class="sub-word">the</span> <span id="w-20" class="sub-word">exact</span></div>
+      <div id="phrase-5" class="sub-phrase"><span id="w-21" class="sub-word">same</span> <span id="w-22" class="sub-word">millisecond.</span> <span id="w-23" class="sub-word">Who</span> <span id="w-24" class="sub-word">wins?</span></div>
+      <div id="phrase-6" class="sub-phrase"><span id="w-25" class="sub-word">Think</span> <span id="w-26" class="sub-word">of</span> <span id="w-27" class="sub-word">your</span> <span id="w-28" class="sub-word">database</span> <span id="w-29" class="sub-word">like</span></div>
+      <div id="phrase-7" class="sub-phrase"><span id="w-30" class="sub-word">a</span> <span id="w-31" class="sub-word">physical</span> <span id="w-32" class="sub-word">notebook.</span></div>
+      <div id="phrase-8" class="sub-phrase"><span id="w-33" class="sub-word">To</span> <span id="w-34" class="sub-word">buy</span> <span id="w-35" class="sub-word">an</span> <span id="w-36" class="sub-word">item,</span></div>
+      <div id="phrase-9" class="sub-phrase"><span id="w-37" class="sub-word">the</span> <span id="w-38" class="sub-word">server</span> <span id="w-39" class="sub-word">has</span> <span id="w-40" class="sub-word">to</span> <span id="w-41" class="sub-word">flip</span></div>
+      <div id="phrase-10" class="sub-phrase"><span id="w-42" class="sub-word">to</span> <span id="w-43" class="sub-word">that</span> <span id="w-44" class="sub-word">exact</span> <span id="w-45" class="sub-word">row,</span></div>
+      <div id="phrase-11" class="sub-phrase"><span id="w-46" class="sub-word">erase</span> <span id="w-47" class="sub-word">the</span> <span id="w-48" class="sub-word">number</span> <span id="w-49" class="sub-word">one</span> <span id="w-50" class="sub-word">and</span></div>
+      <div id="phrase-12" class="sub-phrase"><span id="w-51" class="sub-word">write</span> <span id="w-52" class="sub-word">zero.</span></div>
+      <div id="phrase-13" class="sub-phrase"><span id="w-53" class="sub-word">To</span> <span id="w-54" class="sub-word">stop</span> <span id="w-55" class="sub-word">two</span> <span id="w-56" class="sub-word">people</span> <span id="w-57" class="sub-word">from</span></div>
+      <div id="phrase-14" class="sub-phrase"><span id="w-58" class="sub-word">buying</span> <span id="w-59" class="sub-word">it,</span> <span id="w-60" class="sub-word">databases</span> <span id="w-61" class="sub-word">lock</span> <span id="w-62" class="sub-word">the</span></div>
+      <div id="phrase-15" class="sub-phrase"><span id="w-63" class="sub-word">entire</span> <span id="w-64" class="sub-word">row.</span></div>
+      <div id="phrase-16" class="sub-phrase"><span id="w-65" class="sub-word">But</span> <span id="w-66" class="sub-word">during</span> <span id="w-67" class="sub-word">a</span> <span id="w-68" class="sub-word">flash</span> <span id="w-69" class="sub-word">sale,</span></div>
+      <div id="phrase-17" class="sub-phrase"><span id="w-70" class="sub-word">thousands</span> <span id="w-71" class="sub-word">of</span> <span id="w-72" class="sub-word">shoppers</span> <span id="w-73" class="sub-word">queue</span> <span id="w-74" class="sub-word">behind</span></div>
+      <div id="phrase-18" class="sub-phrase"><span id="w-75" class="sub-word">that</span> <span id="w-76" class="sub-word">single</span> <span id="w-77" class="sub-word">lock,</span></div>
+      <div id="phrase-19" class="sub-phrase"><span id="w-78" class="sub-word">causing</span> <span id="w-79" class="sub-word">connection</span> <span id="w-80" class="sub-word">timeouts,</span></div>
+      <div id="phrase-20" class="sub-phrase"><span id="w-81" class="sub-word">spinning</span> <span id="w-82" class="sub-word">wheels</span> <span id="w-83" class="sub-word">and</span> <span id="w-84" class="sub-word">crashed</span> <span id="w-85" class="sub-word">servers.</span></div>
+      <div id="phrase-21" class="sub-phrase"><span id="w-86" class="sub-word">Here</span> <span id="w-87" class="sub-word">is</span> <span id="w-88" class="sub-word">the</span> <span id="w-89" class="sub-word">genius</span> <span id="w-90" class="sub-word">trick</span></div>
+      <div id="phrase-22" class="sub-phrase"><span id="w-91" class="sub-word">Shopify</span> <span id="w-92" class="sub-word">uses.</span></div>
+      <div id="phrase-23" class="sub-phrase"><span id="w-93" class="sub-word">Instead</span> <span id="w-94" class="sub-word">of</span> <span id="w-95" class="sub-word">one</span> <span id="w-96" class="sub-word">shared</span> <span id="w-97" class="sub-word">counter</span></div>
+      <div id="phrase-24" class="sub-phrase"><span id="w-98" class="sub-word">that</span> <span id="w-99" class="sub-word">says</span> <span id="w-100" class="sub-word">six,</span></div>
+      <div id="phrase-25" class="sub-phrase"><span id="w-101" class="sub-word">create</span> <span id="w-102" class="sub-word">six</span> <span id="w-103" class="sub-word">separate</span> <span id="w-104" class="sub-word">rows,</span></div>
+      <div id="phrase-26" class="sub-phrase"><span id="w-105" class="sub-word">one</span> <span id="w-106" class="sub-word">for</span> <span id="w-107" class="sub-word">each</span> <span id="w-108" class="sub-word">individual</span> <span id="w-109" class="sub-word">hoodie.</span></div>
+      <div id="phrase-27" class="sub-phrase"><span id="w-110" class="sub-word">Like</span> <span id="w-111" class="sub-word">six</span> <span id="w-112" class="sub-word">physical</span> <span id="w-113" class="sub-word">tokens</span> <span id="w-114" class="sub-word">sitting</span></div>
+      <div id="phrase-28" class="sub-phrase"><span id="w-115" class="sub-word">in</span> <span id="w-116" class="sub-word">a</span> <span id="w-117" class="sub-word">glass</span> <span id="w-118" class="sub-word">bowl.</span></div>
+      <div id="phrase-29" class="sub-phrase"><span id="w-119" class="sub-word">Now,</span> <span id="w-120" class="sub-word">every</span> <span id="w-121" class="sub-word">checkout</span> <span id="w-122" class="sub-word">query</span> <span id="w-123" class="sub-word">asks</span></div>
+      <div id="phrase-30" class="sub-phrase"><span id="w-124" class="sub-word">for</span> <span id="w-125" class="sub-word">just</span> <span id="w-126" class="sub-word">one</span> <span id="w-127" class="sub-word">token.</span></div>
+      <div id="phrase-31" class="sub-phrase"><span id="w-128" class="sub-word">And</span> <span id="w-129" class="sub-word">if</span> <span id="w-130" class="sub-word">another</span> <span id="w-131" class="sub-word">customer</span> <span id="w-132" class="sub-word">is</span></div>
+      <div id="phrase-32" class="sub-phrase"><span id="w-133" class="sub-word">currently</span> <span id="w-134" class="sub-word">touching</span> <span id="w-135" class="sub-word">token</span> <span id="w-136" class="sub-word">one,</span></div>
+      <div id="phrase-33" class="sub-phrase"><span id="w-137" class="sub-word">the</span> <span id="w-138" class="sub-word">query</span> <span id="w-139" class="sub-word">doesn't</span> <span id="w-140" class="sub-word">wait</span> <span id="w-141" class="sub-word">in</span></div>
+      <div id="phrase-34" class="sub-phrase"><span id="w-142" class="sub-word">line.</span></div>
+      <div id="phrase-35" class="sub-phrase"><span id="w-143" class="sub-word">It</span> <span id="w-144" class="sub-word">immediately</span> <span id="w-145" class="sub-word">skips</span> <span id="w-146" class="sub-word">to</span> <span id="w-147" class="sub-word">token</span></div>
+      <div id="phrase-36" class="sub-phrase"><span id="w-148" class="sub-word">two,</span></div>
+      <div id="phrase-37" class="sub-phrase"><span id="w-149" class="sub-word">no</span> <span id="w-150" class="sub-word">queue,</span></div>
+      <div id="phrase-38" class="sub-phrase"><span id="w-151" class="sub-word">no</span> <span id="w-152" class="sub-word">deadlocks.</span></div>
+      <div id="phrase-39" class="sub-phrase"><span id="w-153" class="sub-word">Thousands</span> <span id="w-154" class="sub-word">of</span> <span id="w-155" class="sub-word">transactions</span> <span id="w-156" class="sub-word">complete</span> <span id="w-157" class="sub-word">in</span></div>
+      <div id="phrase-40" class="sub-phrase"><span id="w-158" class="sub-word">parallel</span></div>
+      <div id="phrase-41" class="sub-phrase"><span id="w-159" class="sub-word">and</span> <span id="w-160" class="sub-word">Shopify</span> <span id="w-161" class="sub-word">never</span> <span id="w-162" class="sub-word">sells</span> <span id="w-163" class="sub-word">that</span></div>
+      <div id="phrase-42" class="sub-phrase"><span id="w-164" class="sub-word">last</span> <span id="w-165" class="sub-word">hoodie</span> <span id="w-166" class="sub-word">twice.</span></div>
+    </div>
+
+  </div>
+
+  <script>
+    window.__timelines = window.__timelines || {};
+    const tl = gsap.timeline({ paused: true });
+
+    // ================= 17 MICRO-SCENE GSAP CHOREOGRAPHIES =================
+
+    // Clip 1: 0.0s - 2.8s (Black Friday Calendar)
+    tl.to("#clip1", { opacity: 1, duration: 0.25 }, 0.0);
+    tl.from("#s1-cal", { scale: 0.7, rotationX: 30, opacity: 0, duration: 0.7, ease: "back.out(1.5)" }, 0.1);
+    tl.to("#clip1", { opacity: 0, duration: 0.25 }, 2.6);
+
+    // Clip 2: 2.8s - 5.5s (10,000 Checkout Smash)
+    tl.to("#clip2", { opacity: 1, duration: 0.25 }, 2.8);
+    tl.from("#s2-btn-box", { scale: 0.8, opacity: 0, duration: 0.5, ease: "power3.out" }, 2.9);
+    tl.to(".big-checkout-btn", { scale: 0.95, duration: 0.15, yoyo: true, repeat: 3 }, 3.4);
+    tl.to("#clip2", { opacity: 0, duration: 0.25 }, 5.3);
+
+    // Clip 3: 5.5s - 8.0s (Rotating Hoodie Showcase)
+    tl.to("#clip3", { opacity: 1, duration: 0.25 }, 5.5);
+    tl.from("#s3-showcase", { scale: 0.8, opacity: 0, duration: 0.6, ease: "back.out(1.4)" }, 5.6);
+    tl.to(".rotating-hoodie-svg", { rotationY: 45, duration: 2.0, ease: "none" }, 5.8);
+    tl.to("#clip3", { opacity: 0, duration: 0.25 }, 7.8);
+
+    // Clip 4: 8.0s - 10.4s (Who Wins Spotlight)
+    tl.to("#clip4", { opacity: 1, duration: 0.25 }, 8.0);
+    tl.from("#s4-spotlight", { scale: 0.7, opacity: 0, duration: 0.5, ease: "back.out(1.8)" }, 8.1);
+    tl.to("#clip4", { opacity: 0, duration: 0.25 }, 10.2);
+
+    // Clip 5: 10.4s - 13.2s (Database Notebook Table)
+    tl.to("#clip5", { opacity: 1, duration: 0.25 }, 10.4);
+    tl.from("#s5-table", { rotationX: 25, opacity: 0, y: 50, duration: 0.6, ease: "power3.out" }, 10.5);
+    tl.to("#clip5", { opacity: 0, duration: 0.25 }, 13.0);
+
+    // Clip 6: 13.2s - 16.5s (Laser Row Scanner)
+    tl.to("#clip6", { opacity: 1, duration: 0.25 }, 13.2);
+    tl.fromTo("#s6-beam", { y: 0 }, { y: 180, duration: 2.2, ease: "power2.inOut" }, 13.4);
+    tl.to("#clip6", { opacity: 0, duration: 0.25 }, 16.3);
+
+    // Clip 7: 16.5s - 19.8s (Cell Overwrite 1 -> 0)
+    tl.to("#clip7", { opacity: 1, duration: 0.25 }, 16.5);
+    tl.from("#s7-box", { scale: 0.8, opacity: 0, duration: 0.5, ease: "back.out(1.4)" }, 16.6);
+    tl.to(".val-old", { opacity: 0.2, duration: 0.3 }, 17.5);
+    tl.fromTo(".val-new", { scale: 0, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.5, ease: "back.out(1.7)" }, 18.2);
+    tl.to("#clip7", { opacity: 0, duration: 0.25 }, 19.6);
+
+    // Clip 8: 19.8s - 23.0s (Heavy Padlock Slam)
+    tl.to("#clip8", { opacity: 1, duration: 0.25 }, 19.8);
+    tl.from("#s8-lock", { y: -350, opacity: 0, duration: 0.6, ease: "power4.in" }, 20.0);
+    tl.from("#s8-shackle", { y: -40, duration: 0.25, ease: "power2.in" }, 20.6);
+    tl.to("#clip8", { opacity: 0, duration: 0.25 }, 22.8);
+
+    // Clip 9: 23.0s - 27.5s (Congestion Traffic Jam)
+    tl.to("#clip9", { opacity: 1, duration: 0.25 }, 23.0);
+    tl.from(".queue-row", { x: -60, opacity: 0, stagger: 0.2, duration: 0.6, ease: "power3.out" }, 23.2);
+    tl.to("#clip9", { opacity: 0, duration: 0.25 }, 27.3);
+
+    // Clip 10: 27.5s - 33.6s (Server Crash & 504 Timeout)
+    tl.to("#clip10", { opacity: 1, duration: 0.25 }, 27.5);
+    tl.from("#s10-error", { scale: 0.7, opacity: 0, duration: 0.6, ease: "elastic.out(1, 0.6)" }, 27.7);
+    tl.to("#clip10", { opacity: 0, duration: 0.25 }, 33.3);
+
+    // Clip 11: 33.6s - 37.0s (Shopify Blueprint)
+    tl.to("#clip11", { opacity: 1, duration: 0.25 }, 33.6);
+    tl.from("#s11-card", { scale: 0.85, opacity: 0, duration: 0.6, ease: "power3.out" }, 33.8);
+    tl.to("#clip11", { opacity: 0, duration: 0.25 }, 36.8);
+
+    // Clip 12: 37.0s - 42.5s (1 Row Shatters into 6 Units)
+    tl.to("#clip12", { opacity: 1, duration: 0.25 }, 37.0);
+    tl.from(".unit-card", { scale: 0, opacity: 0, stagger: 0.1, duration: 0.6, ease: "back.out(1.5)" }, 37.3);
+    tl.to("#clip12", { opacity: 0, duration: 0.25 }, 42.3);
+
+    // Clip 13: 42.5s - 46.5s (6 Tokens in Glass Bowl)
+    tl.to("#clip13", { opacity: 1, duration: 0.25 }, 42.5);
+    tl.from("#s13-bowl", { scale: 0.85, opacity: 0, duration: 0.6, ease: "power3.out" }, 42.7);
+    tl.from(".gold-coin-3d", { y: -180, opacity: 0, stagger: 0.08, duration: 0.7, ease: "bounce.out" }, 43.1);
+    tl.to("#clip13", { opacity: 0, duration: 0.25 }, 46.3);
+
+    // Clip 14: 46.5s - 51.5s (Concurrent Threads Arrive)
+    tl.to("#clip14", { opacity: 1, duration: 0.25 }, 46.5);
+    tl.from("#s14-stage .station-unit", { y: 60, opacity: 0, stagger: 0.2, duration: 0.6, ease: "power3.out" }, 46.7);
+    tl.to("#clip14", { opacity: 0, duration: 0.25 }, 51.3);
+
+    // Clip 15: 51.5s - 58.7s (SKIP LOCKED Bypass)
+    tl.to("#clip15", { opacity: 1, duration: 0.25 }, 51.5);
+    tl.from("#s15-st1", { opacity: 0, x: -60, duration: 0.5, ease: "power3.out" }, 51.7);
+    tl.from("#s15-st2", { opacity: 0, x: 60, duration: 0.5, ease: "power3.out" }, 51.9);
+    tl.fromTo("#s15-cursor",
+      { opacity: 0, x: -80, y: -80 },
+      { opacity: 1, x: 0, y: 0, duration: 0.6, ease: "power2.out" },
+      52.5
+    );
+    // Cursor detects Token 1 locked, skips over and claims Token 2
+    tl.to("#s15-cursor", {
+      x: 350,
+      y: 30,
+      duration: 1.0,
+      ease: "power2.inOut"
+    }, 54.0);
+    tl.to("#clip15", { opacity: 0, duration: 0.25 }, 58.4);
+
+    // Clip 16: 58.7s - 63.5s (Parallel Pipelines)
+    tl.to("#clip16", { opacity: 1, duration: 0.25 }, 58.7);
+    tl.from(".pipe-lane", { x: -80, opacity: 0, stagger: 0.12, duration: 0.6, ease: "power3.out" }, 58.9);
+    tl.to("#clip16", { opacity: 0, duration: 0.25 }, 63.3);
+
+    // Clip 17: 63.5s - 68.6s (Production Terminal & Victory)
+    tl.to("#clip17", { opacity: 1, duration: 0.25 }, 63.5);
+    tl.from("#s17-term", { scale: 0.9, opacity: 0, duration: 0.6, ease: "power4.out" }, 63.7);
+    tl.from(".victory-badge", { scale: 0, opacity: 0, duration: 0.5, ease: "back.out(1.7)" }, 65.0);
+
+    // ================= DYNAMIC KARAOKE SUBTITLE TIMELINE =================
+    tl.to("#w-0", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 0.0);
+    tl.to("#w-0", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 0.22);
+    tl.to("#w-1", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 0.22);
+    tl.to("#w-1", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 0.48);
+    tl.to("#phrase-0", { opacity: 1, y: 0, duration: 0.15, ease: "power2.out" }, 0);
+    tl.to("#phrase-0", { opacity: 0, y: -10, duration: 0.15, ease: "power2.in" }, 0.58);
+    tl.to("#w-2", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 1.14);
+    tl.to("#w-2", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 1.24);
+    tl.to("#w-3", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 1.22);
+    tl.to("#w-3", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 1.32);
+    tl.to("#w-4", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 1.32);
+    tl.to("#w-4", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 1.58);
+    tl.to("#w-5", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 1.58);
+    tl.to("#w-5", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 2.0);
+    tl.to("#phrase-1", { opacity: 1, y: 0, duration: 0.15, ease: "power2.out" }, 1.0899999999999999);
+    tl.to("#phrase-1", { opacity: 0, y: -10, duration: 0.15, ease: "power2.in" }, 2.1);
+    tl.to("#w-6", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 2.92);
+    tl.to("#w-6", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 3.16);
+    tl.to("#w-7", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 3.16);
+    tl.to("#w-7", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 3.64);
+    tl.to("#w-8", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 3.64);
+    tl.to("#w-8", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 3.92);
+    tl.to("#w-9", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 3.92);
+    tl.to("#w-9", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 4.34);
+    tl.to("#w-10", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 4.34);
+    tl.to("#w-10", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 4.7);
+    tl.to("#phrase-2", { opacity: 1, y: 0, duration: 0.15, ease: "power2.out" }, 2.87);
+    tl.to("#phrase-2", { opacity: 0, y: -10, duration: 0.15, ease: "power2.in" }, 4.8);
+    tl.to("#w-11", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 4.7);
+    tl.to("#w-11", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 4.96);
+    tl.to("#w-12", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 4.96);
+    tl.to("#w-12", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 5.48);
+    tl.to("#w-13", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 5.48);
+    tl.to("#w-13", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 5.66);
+    tl.to("#w-14", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 5.66);
+    tl.to("#w-14", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 5.76);
+    tl.to("#w-15", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 5.76);
+    tl.to("#w-15", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 6.0);
+    tl.to("#phrase-3", { opacity: 1, y: 0, duration: 0.15, ease: "power2.out" }, 4.65);
+    tl.to("#phrase-3", { opacity: 0, y: -10, duration: 0.15, ease: "power2.in" }, 6.1);
+    tl.to("#w-16", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 6.0);
+    tl.to("#w-16", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 6.5);
+    tl.to("#w-17", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 6.5);
+    tl.to("#w-17", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 6.98);
+    tl.to("#w-18", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 6.98);
+    tl.to("#w-18", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 7.12);
+    tl.to("#w-19", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 7.12);
+    tl.to("#w-19", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 7.26);
+    tl.to("#w-20", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 7.26);
+    tl.to("#w-20", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 7.44);
+    tl.to("#phrase-4", { opacity: 1, y: 0, duration: 0.15, ease: "power2.out" }, 5.95);
+    tl.to("#phrase-4", { opacity: 0, y: -10, duration: 0.15, ease: "power2.in" }, 7.54);
+    tl.to("#w-21", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 7.44);
+    tl.to("#w-21", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 8.1);
+    tl.to("#w-22", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 8.1);
+    tl.to("#w-22", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 8.84);
+    tl.to("#w-23", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 9.22);
+    tl.to("#w-23", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 9.52);
+    tl.to("#w-24", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 9.52);
+    tl.to("#w-24", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 9.76);
+    tl.to("#phrase-5", { opacity: 1, y: 0, duration: 0.15, ease: "power2.out" }, 7.390000000000001);
+    tl.to("#phrase-5", { opacity: 0, y: -10, duration: 0.15, ease: "power2.in" }, 9.86);
+    tl.to("#w-25", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 10.52);
+    tl.to("#w-25", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 10.62);
+    tl.to("#w-26", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 10.52);
+    tl.to("#w-26", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 10.64);
+    tl.to("#w-27", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 10.64);
+    tl.to("#w-27", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 10.8);
+    tl.to("#w-28", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 10.8);
+    tl.to("#w-28", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 11.18);
+    tl.to("#w-29", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 11.18);
+    tl.to("#w-29", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 11.66);
+    tl.to("#phrase-6", { opacity: 1, y: 0, duration: 0.15, ease: "power2.out" }, 10.469999999999999);
+    tl.to("#phrase-6", { opacity: 0, y: -10, duration: 0.15, ease: "power2.in" }, 11.76);
+    tl.to("#w-30", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 11.66);
+    tl.to("#w-30", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 11.8);
+    tl.to("#w-31", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 11.8);
+    tl.to("#w-31", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 12.0);
+    tl.to("#w-32", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 12.0);
+    tl.to("#w-32", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 12.46);
+    tl.to("#phrase-7", { opacity: 1, y: 0, duration: 0.15, ease: "power2.out" }, 11.61);
+    tl.to("#phrase-7", { opacity: 0, y: -10, duration: 0.15, ease: "power2.in" }, 12.56);
+    tl.to("#w-33", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 13.42);
+    tl.to("#w-33", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 13.64);
+    tl.to("#w-34", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 13.64);
+    tl.to("#w-34", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 13.82);
+    tl.to("#w-35", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 13.82);
+    tl.to("#w-35", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 14.0);
+    tl.to("#w-36", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 14.0);
+    tl.to("#w-36", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 14.32);
+    tl.to("#phrase-8", { opacity: 1, y: 0, duration: 0.15, ease: "power2.out" }, 13.37);
+    tl.to("#phrase-8", { opacity: 0, y: -10, duration: 0.15, ease: "power2.in" }, 14.42);
+    tl.to("#w-37", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 14.7);
+    tl.to("#w-37", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 14.84);
+    tl.to("#w-38", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 14.84);
+    tl.to("#w-38", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 15.1);
+    tl.to("#w-39", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 15.1);
+    tl.to("#w-39", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 15.4);
+    tl.to("#w-40", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 15.4);
+    tl.to("#w-40", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 15.58);
+    tl.to("#w-41", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 15.58);
+    tl.to("#w-41", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 15.84);
+    tl.to("#phrase-9", { opacity: 1, y: 0, duration: 0.15, ease: "power2.out" }, 14.649999999999999);
+    tl.to("#phrase-9", { opacity: 0, y: -10, duration: 0.15, ease: "power2.in" }, 15.94);
+    tl.to("#w-42", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 15.84);
+    tl.to("#w-42", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 16.04);
+    tl.to("#w-43", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 16.04);
+    tl.to("#w-43", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 16.2);
+    tl.to("#w-44", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 16.2);
+    tl.to("#w-44", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 16.4);
+    tl.to("#w-45", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 16.4);
+    tl.to("#w-45", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 16.96);
+    tl.to("#phrase-10", { opacity: 1, y: 0, duration: 0.15, ease: "power2.out" }, 15.79);
+    tl.to("#phrase-10", { opacity: 0, y: -10, duration: 0.15, ease: "power2.in" }, 17.060000000000002);
+    tl.to("#w-46", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 17.54);
+    tl.to("#w-46", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 17.7);
+    tl.to("#w-47", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 17.7);
+    tl.to("#w-47", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 18.0);
+    tl.to("#w-48", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 18.0);
+    tl.to("#w-48", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 18.2);
+    tl.to("#w-49", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 18.2);
+    tl.to("#w-49", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 18.54);
+    tl.to("#w-50", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 18.54);
+    tl.to("#w-50", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 18.9);
+    tl.to("#phrase-11", { opacity: 1, y: 0, duration: 0.15, ease: "power2.out" }, 17.49);
+    tl.to("#phrase-11", { opacity: 0, y: -10, duration: 0.15, ease: "power2.in" }, 19.0);
+    tl.to("#w-51", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 18.9);
+    tl.to("#w-51", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 19.1);
+    tl.to("#w-52", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 19.1);
+    tl.to("#w-52", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 19.52);
+    tl.to("#phrase-12", { opacity: 1, y: 0, duration: 0.15, ease: "power2.out" }, 18.849999999999998);
+    tl.to("#phrase-12", { opacity: 0, y: -10, duration: 0.15, ease: "power2.in" }, 19.62);
+    tl.to("#w-53", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 20.06);
+    tl.to("#w-53", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 20.16);
+    tl.to("#w-54", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 20.12);
+    tl.to("#w-54", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 20.32);
+    tl.to("#w-55", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 20.32);
+    tl.to("#w-55", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 20.6);
+    tl.to("#w-56", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 20.6);
+    tl.to("#w-56", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 20.96);
+    tl.to("#w-57", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 20.96);
+    tl.to("#w-57", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 21.2);
+    tl.to("#phrase-13", { opacity: 1, y: 0, duration: 0.15, ease: "power2.out" }, 20.009999999999998);
+    tl.to("#phrase-13", { opacity: 0, y: -10, duration: 0.15, ease: "power2.in" }, 21.3);
+    tl.to("#w-58", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 21.2);
+    tl.to("#w-58", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 21.48);
+    tl.to("#w-59", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 21.48);
+    tl.to("#w-59", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 21.72);
+    tl.to("#w-60", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 22.1);
+    tl.to("#w-60", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 22.38);
+    tl.to("#w-61", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 22.38);
+    tl.to("#w-61", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 23.0);
+    tl.to("#w-62", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 23.0);
+    tl.to("#w-62", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 23.32);
+    tl.to("#phrase-14", { opacity: 1, y: 0, duration: 0.15, ease: "power2.out" }, 21.15);
+    tl.to("#phrase-14", { opacity: 0, y: -10, duration: 0.15, ease: "power2.in" }, 23.42);
+    tl.to("#w-63", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 23.32);
+    tl.to("#w-63", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 23.48);
+    tl.to("#w-64", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 23.48);
+    tl.to("#w-64", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 24.02);
+    tl.to("#phrase-15", { opacity: 1, y: 0, duration: 0.15, ease: "power2.out" }, 23.27);
+    tl.to("#phrase-15", { opacity: 0, y: -10, duration: 0.15, ease: "power2.in" }, 24.12);
+    tl.to("#w-65", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 25.06);
+    tl.to("#w-65", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 25.32);
+    tl.to("#w-66", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 25.32);
+    tl.to("#w-66", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 25.48);
+    tl.to("#w-67", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 25.48);
+    tl.to("#w-67", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 25.68);
+    tl.to("#w-68", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 25.68);
+    tl.to("#w-68", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 25.84);
+    tl.to("#w-69", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 25.84);
+    tl.to("#w-69", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 26.32);
+    tl.to("#phrase-16", { opacity: 1, y: 0, duration: 0.15, ease: "power2.out" }, 25.009999999999998);
+    tl.to("#phrase-16", { opacity: 0, y: -10, duration: 0.15, ease: "power2.in" }, 26.42);
+    tl.to("#w-70", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 26.88);
+    tl.to("#w-70", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 27.24);
+    tl.to("#w-71", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 27.24);
+    tl.to("#w-71", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 27.52);
+    tl.to("#w-72", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 27.52);
+    tl.to("#w-72", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 27.94);
+    tl.to("#w-73", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 27.94);
+    tl.to("#w-73", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 28.26);
+    tl.to("#w-74", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 28.26);
+    tl.to("#w-74", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 28.66);
+    tl.to("#phrase-17", { opacity: 1, y: 0, duration: 0.15, ease: "power2.out" }, 26.83);
+    tl.to("#phrase-17", { opacity: 0, y: -10, duration: 0.15, ease: "power2.in" }, 28.76);
+    tl.to("#w-75", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 28.66);
+    tl.to("#w-75", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 28.92);
+    tl.to("#w-76", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 28.92);
+    tl.to("#w-76", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 29.2);
+    tl.to("#w-77", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 29.2);
+    tl.to("#w-77", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 29.64);
+    tl.to("#phrase-18", { opacity: 1, y: 0, duration: 0.15, ease: "power2.out" }, 28.61);
+    tl.to("#phrase-18", { opacity: 0, y: -10, duration: 0.15, ease: "power2.in" }, 29.740000000000002);
+    tl.to("#w-78", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 29.96);
+    tl.to("#w-78", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 30.42);
+    tl.to("#w-79", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 30.42);
+    tl.to("#w-79", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 30.78);
+    tl.to("#w-80", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 30.78);
+    tl.to("#w-80", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 31.54);
+    tl.to("#phrase-19", { opacity: 1, y: 0, duration: 0.15, ease: "power2.out" }, 29.91);
+    tl.to("#phrase-19", { opacity: 0, y: -10, duration: 0.15, ease: "power2.in" }, 31.64);
+    tl.to("#w-81", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 31.8);
+    tl.to("#w-81", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 32.1);
+    tl.to("#w-82", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 32.1);
+    tl.to("#w-82", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 32.42);
+    tl.to("#w-83", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 32.42);
+    tl.to("#w-83", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 32.82);
+    tl.to("#w-84", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 32.82);
+    tl.to("#w-84", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 33.06);
+    tl.to("#w-85", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 33.06);
+    tl.to("#w-85", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 33.5);
+    tl.to("#phrase-20", { opacity: 1, y: 0, duration: 0.15, ease: "power2.out" }, 31.75);
+    tl.to("#phrase-20", { opacity: 0, y: -10, duration: 0.15, ease: "power2.in" }, 33.6);
+    tl.to("#w-86", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 34.16);
+    tl.to("#w-86", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 34.34);
+    tl.to("#w-87", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 34.34);
+    tl.to("#w-87", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 34.56);
+    tl.to("#w-88", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 34.56);
+    tl.to("#w-88", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 34.68);
+    tl.to("#w-89", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 34.68);
+    tl.to("#w-89", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 35.06);
+    tl.to("#w-90", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 35.06);
+    tl.to("#w-90", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 35.42);
+    tl.to("#phrase-21", { opacity: 1, y: 0, duration: 0.15, ease: "power2.out" }, 34.11);
+    tl.to("#phrase-21", { opacity: 0, y: -10, duration: 0.15, ease: "power2.in" }, 35.52);
+    tl.to("#w-91", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 35.42);
+    tl.to("#w-91", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 36.06);
+    tl.to("#w-92", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 36.06);
+    tl.to("#w-92", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 36.36);
+    tl.to("#phrase-22", { opacity: 1, y: 0, duration: 0.15, ease: "power2.out" }, 35.370000000000005);
+    tl.to("#phrase-22", { opacity: 0, y: -10, duration: 0.15, ease: "power2.in" }, 36.46);
+    tl.to("#w-93", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 37.32);
+    tl.to("#w-93", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 37.66);
+    tl.to("#w-94", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 37.66);
+    tl.to("#w-94", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 37.84);
+    tl.to("#w-95", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 37.84);
+    tl.to("#w-95", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 38.04);
+    tl.to("#w-96", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 38.04);
+    tl.to("#w-96", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 38.42);
+    tl.to("#w-97", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 38.42);
+    tl.to("#w-97", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 38.8);
+    tl.to("#phrase-23", { opacity: 1, y: 0, duration: 0.15, ease: "power2.out" }, 37.27);
+    tl.to("#phrase-23", { opacity: 0, y: -10, duration: 0.15, ease: "power2.in" }, 38.9);
+    tl.to("#w-98", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 38.8);
+    tl.to("#w-98", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 39.1);
+    tl.to("#w-99", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 39.1);
+    tl.to("#w-99", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 39.36);
+    tl.to("#w-100", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 39.36);
+    tl.to("#w-100", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 39.7);
+    tl.to("#phrase-24", { opacity: 1, y: 0, duration: 0.15, ease: "power2.out" }, 38.75);
+    tl.to("#phrase-24", { opacity: 0, y: -10, duration: 0.15, ease: "power2.in" }, 39.800000000000004);
+    tl.to("#w-101", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 40.28);
+    tl.to("#w-101", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 40.48);
+    tl.to("#w-102", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 40.48);
+    tl.to("#w-102", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 40.78);
+    tl.to("#w-103", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 40.78);
+    tl.to("#w-103", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 41.2);
+    tl.to("#w-104", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 41.2);
+    tl.to("#w-104", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 41.56);
+    tl.to("#phrase-25", { opacity: 1, y: 0, duration: 0.15, ease: "power2.out" }, 40.230000000000004);
+    tl.to("#phrase-25", { opacity: 0, y: -10, duration: 0.15, ease: "power2.in" }, 41.660000000000004);
+    tl.to("#w-105", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 42.08);
+    tl.to("#w-105", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 42.38);
+    tl.to("#w-106", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 42.38);
+    tl.to("#w-106", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 42.62);
+    tl.to("#w-107", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 42.62);
+    tl.to("#w-107", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 42.9);
+    tl.to("#w-108", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 42.9);
+    tl.to("#w-108", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 43.52);
+    tl.to("#w-109", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 43.52);
+    tl.to("#w-109", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 43.94);
+    tl.to("#phrase-26", { opacity: 1, y: 0, duration: 0.15, ease: "power2.out" }, 42.03);
+    tl.to("#phrase-26", { opacity: 0, y: -10, duration: 0.15, ease: "power2.in" }, 44.04);
+    tl.to("#w-110", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 44.74);
+    tl.to("#w-110", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 45.0);
+    tl.to("#w-111", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 45.0);
+    tl.to("#w-111", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 45.24);
+    tl.to("#w-112", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 45.24);
+    tl.to("#w-112", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 45.66);
+    tl.to("#w-113", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 45.66);
+    tl.to("#w-113", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 46.12);
+    tl.to("#w-114", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 46.12);
+    tl.to("#w-114", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 46.52);
+    tl.to("#phrase-27", { opacity: 1, y: 0, duration: 0.15, ease: "power2.out" }, 44.690000000000005);
+    tl.to("#phrase-27", { opacity: 0, y: -10, duration: 0.15, ease: "power2.in" }, 46.620000000000005);
+    tl.to("#w-115", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 46.52);
+    tl.to("#w-115", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 46.76);
+    tl.to("#w-116", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 46.76);
+    tl.to("#w-116", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 46.86);
+    tl.to("#w-117", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 46.84);
+    tl.to("#w-117", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 46.98);
+    tl.to("#w-118", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 46.98);
+    tl.to("#w-118", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 47.42);
+    tl.to("#phrase-28", { opacity: 1, y: 0, duration: 0.15, ease: "power2.out" }, 46.470000000000006);
+    tl.to("#phrase-28", { opacity: 0, y: -10, duration: 0.15, ease: "power2.in" }, 47.52);
+    tl.to("#w-119", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 47.88);
+    tl.to("#w-119", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 48.12);
+    tl.to("#w-120", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 48.5);
+    tl.to("#w-120", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 48.8);
+    tl.to("#w-121", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 48.8);
+    tl.to("#w-121", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 49.08);
+    tl.to("#w-122", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 49.08);
+    tl.to("#w-122", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 49.56);
+    tl.to("#w-123", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 49.56);
+    tl.to("#w-123", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 50.04);
+    tl.to("#phrase-29", { opacity: 1, y: 0, duration: 0.15, ease: "power2.out" }, 47.830000000000005);
+    tl.to("#phrase-29", { opacity: 0, y: -10, duration: 0.15, ease: "power2.in" }, 50.14);
+    tl.to("#w-124", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 50.04);
+    tl.to("#w-124", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 50.4);
+    tl.to("#w-125", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 50.4);
+    tl.to("#w-125", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 50.58);
+    tl.to("#w-126", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 50.58);
+    tl.to("#w-126", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 50.88);
+    tl.to("#w-127", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 50.88);
+    tl.to("#w-127", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 51.16);
+    tl.to("#phrase-30", { opacity: 1, y: 0, duration: 0.15, ease: "power2.out" }, 49.99);
+    tl.to("#phrase-30", { opacity: 0, y: -10, duration: 0.15, ease: "power2.in" }, 51.26);
+    tl.to("#w-128", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 52.1);
+    tl.to("#w-128", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 52.38);
+    tl.to("#w-129", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 52.38);
+    tl.to("#w-129", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 52.5);
+    tl.to("#w-130", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 52.5);
+    tl.to("#w-130", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 52.72);
+    tl.to("#w-131", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 52.72);
+    tl.to("#w-131", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 53.1);
+    tl.to("#w-132", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 53.1);
+    tl.to("#w-132", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 53.6);
+    tl.to("#phrase-31", { opacity: 1, y: 0, duration: 0.15, ease: "power2.out" }, 52.050000000000004);
+    tl.to("#phrase-31", { opacity: 0, y: -10, duration: 0.15, ease: "power2.in" }, 53.7);
+    tl.to("#w-133", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 53.6);
+    tl.to("#w-133", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 53.86);
+    tl.to("#w-134", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 53.86);
+    tl.to("#w-134", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 54.34);
+    tl.to("#w-135", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 54.34);
+    tl.to("#w-135", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 54.64);
+    tl.to("#w-136", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 54.64);
+    tl.to("#w-136", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 55.02);
+    tl.to("#phrase-32", { opacity: 1, y: 0, duration: 0.15, ease: "power2.out" }, 53.550000000000004);
+    tl.to("#phrase-32", { opacity: 0, y: -10, duration: 0.15, ease: "power2.in" }, 55.120000000000005);
+    tl.to("#w-137", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 55.02);
+    tl.to("#w-137", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 55.56);
+    tl.to("#w-138", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 55.56);
+    tl.to("#w-138", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 55.82);
+    tl.to("#w-139", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 55.82);
+    tl.to("#w-139", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 56.3);
+    tl.to("#w-140", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 56.3);
+    tl.to("#w-140", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 56.44);
+    tl.to("#w-141", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 56.44);
+    tl.to("#w-141", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 56.6);
+    tl.to("#phrase-33", { opacity: 1, y: 0, duration: 0.15, ease: "power2.out" }, 54.970000000000006);
+    tl.to("#phrase-33", { opacity: 0, y: -10, duration: 0.15, ease: "power2.in" }, 56.7);
+    tl.to("#w-142", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 56.6);
+    tl.to("#w-142", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 56.8);
+    tl.to("#phrase-34", { opacity: 1, y: 0, duration: 0.15, ease: "power2.out" }, 56.550000000000004);
+    tl.to("#phrase-34", { opacity: 0, y: -10, duration: 0.15, ease: "power2.in" }, 56.9);
+    tl.to("#w-143", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 57.62);
+    tl.to("#w-143", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 57.72);
+    tl.to("#w-144", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 57.68);
+    tl.to("#w-144", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 58.0);
+    tl.to("#w-145", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 58.0);
+    tl.to("#w-145", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 58.64);
+    tl.to("#w-146", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 58.64);
+    tl.to("#w-146", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 58.82);
+    tl.to("#w-147", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 58.82);
+    tl.to("#w-147", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 59.04);
+    tl.to("#phrase-35", { opacity: 1, y: 0, duration: 0.15, ease: "power2.out" }, 57.57);
+    tl.to("#phrase-35", { opacity: 0, y: -10, duration: 0.15, ease: "power2.in" }, 59.14);
+    tl.to("#w-148", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 59.04);
+    tl.to("#w-148", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 59.34);
+    tl.to("#phrase-36", { opacity: 1, y: 0, duration: 0.15, ease: "power2.out" }, 58.99);
+    tl.to("#phrase-36", { opacity: 0, y: -10, duration: 0.15, ease: "power2.in" }, 59.440000000000005);
+    tl.to("#w-149", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 59.92);
+    tl.to("#w-149", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 60.02);
+    tl.to("#w-150", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 60.02);
+    tl.to("#w-150", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 60.28);
+    tl.to("#phrase-37", { opacity: 1, y: 0, duration: 0.15, ease: "power2.out" }, 59.870000000000005);
+    tl.to("#phrase-37", { opacity: 0, y: -10, duration: 0.15, ease: "power2.in" }, 60.38);
+    tl.to("#w-151", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 60.96);
+    tl.to("#w-151", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 61.22);
+    tl.to("#w-152", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 61.22);
+    tl.to("#w-152", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 61.7);
+    tl.to("#phrase-38", { opacity: 1, y: 0, duration: 0.15, ease: "power2.out" }, 60.910000000000004);
+    tl.to("#phrase-38", { opacity: 0, y: -10, duration: 0.15, ease: "power2.in" }, 61.800000000000004);
+    tl.to("#w-153", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 62.4);
+    tl.to("#w-153", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 62.8);
+    tl.to("#w-154", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 62.8);
+    tl.to("#w-154", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 63.0);
+    tl.to("#w-155", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 63.0);
+    tl.to("#w-155", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 63.32);
+    tl.to("#w-156", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 63.32);
+    tl.to("#w-156", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 64.16);
+    tl.to("#w-157", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 64.16);
+    tl.to("#w-157", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 64.42);
+    tl.to("#phrase-39", { opacity: 1, y: 0, duration: 0.15, ease: "power2.out" }, 62.35);
+    tl.to("#phrase-39", { opacity: 0, y: -10, duration: 0.15, ease: "power2.in" }, 64.52);
+    tl.to("#w-158", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 64.42);
+    tl.to("#w-158", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 64.76);
+    tl.to("#phrase-40", { opacity: 1, y: 0, duration: 0.15, ease: "power2.out" }, 64.37);
+    tl.to("#phrase-40", { opacity: 0, y: -10, duration: 0.15, ease: "power2.in" }, 64.86);
+    tl.to("#w-159", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 65.18);
+    tl.to("#w-159", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 65.5);
+    tl.to("#w-160", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 65.5);
+    tl.to("#w-160", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 65.88);
+    tl.to("#w-161", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 65.88);
+    tl.to("#w-161", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 66.3);
+    tl.to("#w-162", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 66.3);
+    tl.to("#w-162", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 66.62);
+    tl.to("#w-163", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 66.62);
+    tl.to("#w-163", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 66.94);
+    tl.to("#phrase-41", { opacity: 1, y: 0, duration: 0.15, ease: "power2.out" }, 65.13000000000001);
+    tl.to("#phrase-41", { opacity: 0, y: -10, duration: 0.15, ease: "power2.in" }, 67.03999999999999);
+    tl.to("#w-164", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 66.94);
+    tl.to("#w-164", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 67.2);
+    tl.to("#w-165", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 67.2);
+    tl.to("#w-165", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 67.68);
+    tl.to("#w-166", { color: "#00E599", scale: 1.18, fontWeight: "900", textShadow: "0 0 20px rgba(0, 229, 153, 0.9)", duration: 0.08, overwrite: "auto" }, 67.68);
+    tl.to("#w-166", { color: "#FFFFFF", scale: 1.0, fontWeight: "700", textShadow: "none", duration: 0.08, overwrite: "auto" }, 67.92);
+    tl.to("#phrase-42", { opacity: 1, y: 0, duration: 0.15, ease: "power2.out" }, 66.89);
+    tl.to("#phrase-42", { opacity: 0, y: -10, duration: 0.15, ease: "power2.in" }, 68.02);
+
+    window.__timelines["main"] = tl;
+  </script>
+</body>
+</html>

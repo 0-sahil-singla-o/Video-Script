@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Scene 1: The Hook</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      width: 1080px; height: 1920px;
+      background: #0D0F12;
+      color: #FFFFFF;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      overflow: hidden;
+      perspective: 1200px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Cinematic background glow */
+    .bg-glow {
+      position: absolute;
+      width: 800px; height: 800px;
+      background: radial-gradient(circle, rgba(255, 107, 74, 0.15) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    /* 3D Stage Container */
+    .viewport {
+      width: 500px; height: 500px;
+      position: relative;
+      transform-style: preserve-3d;
+      transform: rotateX(20deg) rotateY(-25deg);
+    }
+
+    /* 3D Glass Display Box */
+    .box {
+      width: 280px; height: 280px;
+      position: absolute;
+      left: 110px; top: 110px;
+      transform-style: preserve-3d;
+    }
+    .face {
+      position: absolute;
+      width: 280px; height: 280px;
+      background: rgba(255, 107, 74, 0.08);
+      border: 2px solid rgba(255, 107, 74, 0.6);
+      box-shadow: inset 0 0 30px rgba(255, 107, 74, 0.2);
+      backdrop-filter: blur(4px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .front  { transform: translateZ(140px); }
+    .back   { transform: rotateY(180deg) translateZ(140px); }
+    .top    { transform: rotateX(90deg) translateZ(140px); }
+    .bottom { transform: rotateX(-90deg) translateZ(140px); }
+    .right  { transform: rotateY(90deg) translateZ(140px); }
+    .left   { transform: rotateY(-90deg) translateZ(140px); }
+
+    .hoodie-icon {
+      font-size: 80px;
+      transform: translateZ(30px);
+      filter: drop-shadow(0 15px 25px rgba(255, 107, 74, 0.5));
+    }
+
+    /* Top Title Badge */
+    .badge {
+      position: absolute;
+      top: 240px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #FF6B4A;
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      padding: 12px 32px;
+      border-radius: 50px;
+      opacity: 0;
+      transform: translateY(-20px);
+    }
+
+    /* Bottom Main Question Card (Safe zone: above 360px) */
+    .question-card {
+      position: absolute;
+      bottom: 440px;
+      width: 860px;
+      background: rgba(26, 30, 41, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-left: 6px solid #FF6B4A;
+      border-radius: 20px;
+      padding: 32px 40px;
+      box-shadow: 0 30px 60px rgba(0, 0, 0, 0.6);
+      opacity: 0;
+      transform: translateY(40px);
+    }
+    .question-title {
+      font-size: 38px;
+      font-weight: 800;
+      line-height: 1.3;
+      color: #FFFFFF;
+    }
+    .highlight {
+      color: #FF6B4A;
+    }
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+</head>
+<body>
+  <div class="bg-glow"></div>
+  <div class="badge" id="badge">SHOPIFY ARCHITECTURE</div>
+
+  <div class="viewport" id="viewport">
+    <div class="box" id="box">
+      <div class="face front"><span class="hoodie-icon">👕</span></div>
+      <div class="face back"></div>
+      <div class="face top"></div>
+      <div class="face bottom"></div>
+      <div class="face right"></div>
+      <div class="face left"></div>
+    </div>
+  </div>
+
+  <div class="question-card" id="card">
+    <div class="question-title">
+      When two people buy the last hoodie at the <span class="highlight">exact same millisecond</span>... who wins?
+    </div>
+  </div>
+
+  <script>
+    // Templated placeholders replaced by build_scenes.py from word_timestamps.json
+    const t_start = 0.0;
+    const t_click = {{t:click}};
+    const t_wins = {{t:wins}};
+
+    const tl = gsap.timeline({ paused: true });
+
+    // Slow, steady cinematic camera drift
+    tl.to("#viewport", {
+      rotateY: "+=35",
+      rotateX: "-=10",
+      duration: 8,
+      ease: "none"
+    }, 0);
+
+    // Badge enters
+    tl.to("#badge", {
+      opacity: 1,
+      y: 0,
+      duration: 0.5,
+      ease: "power3.out"
+    }, t_start + 0.2);
+
+    // Question card pops up on "click"
+    tl.to("#card", {
+      opacity: 1,
+      y: 0,
+      duration: 0.6,
+      ease: "back.out(1.5)"
+    }, t_click);
+
+    // Box pulses with highlight on "wins"
+    tl.to("#box", {
+      scale: 1.1,
+      duration: 0.35,
+      yoyo: true,
+      repeat: 1,
+      ease: "power2.out"
+    }, t_wins);
+
+    // Frame seeker for headless rendering
+    window.seekFrame = (timeInSeconds) => tl.seek(timeInSeconds);
+  </script>
+</body>
+</html>
